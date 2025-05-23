@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 
-// Dummy data for demonstration (in a real app, fetch by ID)
+// Just create data for demonstration, fetch by ID
 const playlistsData: { [key: string]: { name: string; songs: { id: string; title: string; artist: string }[] } } = {
     "1": {
         name: "My Favorites",
@@ -18,7 +18,6 @@ const playlistsData: { [key: string]: { name: string; songs: { id: string; title
             { id: "d", title: "Song D", artist: "Artist 4" },
         ],
     },
-    // ...add more
 };
 
 
@@ -28,17 +27,17 @@ export default function PlaylistPage() {
 
     const [songs, setSongs] = useState(playlist.songs);
 
-    // Remove a song
+    // This is to delete a song
     const handleRemoveSong = (id: string) => {
         setSongs(songs.filter(song => song.id !== id));
     };
 
-    // Find similar (placeholder)
+    // This is well to find similar music (In the description)
     const handleFindSimilar = (title: string) => {
         Alert.alert("Find Similar", `Search for songs similar to "${title}"`);
     };
 
-    // Add new song (placeholder logic)
+    // Add new song
     const handleAddSong = () => {
         const newId = (songs.length + 1).toString();
         setSongs([
@@ -47,12 +46,12 @@ export default function PlaylistPage() {
         ]);
     };
 
-    // Play playlist (placeholder)
+    // Play playlist
     const handlePlay = () => {
         Alert.alert("Play Playlist", "Playing all songs in order!");
     };
 
-    // Shuffle playlist (placeholder)
+    // Shuffle playlist
     const handleShuffle = () => {
         const shuffled = [...songs].sort(() => Math.random() - 0.5);
         setSongs(shuffled);

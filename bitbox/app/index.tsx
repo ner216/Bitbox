@@ -2,15 +2,12 @@ import React from "react";
 import { Text, View, TextInput, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { Link, router  } from "expo-router";
 
-
-
 export default function Index() {
-    // Handler for login button
+    // Making a function to go to home page and using this router to do history stack which is to save
+    // the screen where the user was visited so it would go back to the page they last visted
     const handleLogin = () => {
-        // TODO: Add authentication logic here
-        router.replace("/home"); // Navigates to home page and replaces login in history stack
+        router.replace("/home");
     };
-
 
     return (
         <View style={styles.container}>
@@ -41,6 +38,7 @@ export default function Index() {
     );
 }
 
+// These are the style or bascially things to help design the UI
 const styles = StyleSheet.create({
     container: {
         flex: 1,
