@@ -60,11 +60,12 @@ export default function PlaylistPage() {
 
     return (
         <View style={styles.container}>
+            {/*Showing the playlist name*/}
             <Text style={styles.title}>{playlist.name}</Text>
             <Text style={styles.songCount}>
                 {songs.length} {songs.length === 1 ? "song" : "songs"}
             </Text>
-
+            {/*These are the feature buttons for the playlist page*/}
             <View style={styles.actionRow}>
                 <TouchableOpacity style={styles.playButton} onPress={handlePlay}>
                     <Text style={styles.actionText}>▶ Play</Text>
@@ -108,7 +109,7 @@ export default function PlaylistPage() {
                 }
             />
 
-            {/* Back button */}
+            {/* The back button well to go back to home page */}
             <TouchableOpacity
                 style={styles.backButton}
                 onPress={() => router.back()}
