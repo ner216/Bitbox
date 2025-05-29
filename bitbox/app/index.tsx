@@ -61,6 +61,7 @@ export default function Index() {
 
         <View style={styles.container}>
             {/*Get the bit box image*/}
+
             <Image source={require("../assets/image-removebg-preview.png")} style={styles.logo} />
             <Text style={styles.title}>Welcome to BitBox!</Text>
             {/*Insert Username and password*/}
@@ -87,7 +88,9 @@ export default function Index() {
     );
 }
 
+
 // These are the style or bascially things to help design the UI
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -142,4 +145,5 @@ const styles = StyleSheet.create({
         fontSize: 16,
         textDecorationLine: "underline",
     },
+
 });

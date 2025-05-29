@@ -75,6 +75,7 @@ export default function Home() {
             {/* The user playlist that they can scroll through. Here FlatList use because the user
              can add playlist which would be a lot so Flatlist would render item when they about to
              appear and remove them when they out of screen to save processing time*/}
+
             <Text style={styles.sectionTitle}>Your Playlists</Text>
             <FlatList
                 data={playlists}
@@ -82,6 +83,7 @@ export default function Home() {
                 showsVerticalScrollIndicator={false}
                 style={styles.playlistList}
                 renderItem={({ item }) => (
+
                     // We use pahtname because now we click on the playlist we got different pages
                     <Link href={{
                         pathname: "/playlist/[playlistID]",
@@ -103,6 +105,7 @@ export default function Home() {
                             </TouchableOpacity>
                         </TouchableOpacity>
                     </Link>
+
                 )}
                 ListEmptyComponent={<Text style={styles.empty}>No playlists yet.</Text>}
             />
@@ -255,6 +258,7 @@ const styles = StyleSheet.create({
         marginTop: 30,
         fontSize: 16,
     },
+
     playlist: {
         color: "#fff",
         fontSize: 16,
