@@ -83,8 +83,8 @@ export default function Home() {
                 showsVerticalScrollIndicator={false}
                 style={styles.playlistList}
                 renderItem={({ item }) => (
-
-                    // We use pahtname because now we click on the playlist we got different pages
+                    <View>
+                    {/*// We use pahtname because now we click on the playlist we got different pages*/}
                     <Link href={{
                         pathname: "/playlist/[playlistID]",
                         params: { playlistID: item.id }
@@ -94,21 +94,22 @@ export default function Home() {
                             <Image source={{ uri: item.cover }} style={styles.playlistImg} />
                             <Text style={styles.playlistName}>{item.name}</Text>
                             {/* This is to prevent the delete button to trigger the navigation */}
-                            <TouchableOpacity
-                                style={styles.deleteButton}
-                                onPress={e => {
-                                    e.stopPropagation(); // Prevents navigation when deleting
-                                    handleDelete(item.id);
-                                }}
-                            >
-                                <Text style={styles.deleteText}>Delete</Text>
-                            </TouchableOpacity>
                         </TouchableOpacity>
                     </Link>
-
+                        <TouchableOpacity
+                            style={styles.deleteButton}
+                            onPress={(e) => {
+                                e.stopPropagation(); // Prevent navigation trigger
+                                handleDelete(item.id);
+                            }}
+                        >
+                            <Text style={styles.deleteText}>Delete</Text>
+                        </TouchableOpacity>
+                    </View>
                 )}
                 ListEmptyComponent={<Text style={styles.empty}>No playlists yet.</Text>}
             />
+
 
             {/*To make the new playlist*/}
             <TouchableOpacity style={styles.addButton} onPress={handleAddPlaylist}>
