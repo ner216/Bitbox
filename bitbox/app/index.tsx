@@ -1,8 +1,56 @@
-import React from "react";
+// import {StyleSheet, View, Dimensions} from "react-native";
+// import {useVideoPlayer, VideoView} from "expo-video";
+// import { useRouter } from "expo-router";
+// import React, { useEffect } from "react";
+//
+// const localSource = require("../assets/intro.mp4");
+//
+// export default function Intro() {
+//     const player = useVideoPlayer(localSource, (player) =>{
+//         // player.loop = true;
+//         player.staysActiveInBackground = true;
+//         player.play();
+//     })
+//
+//     const router = useRouter();
+//
+//     useEffect(() => {
+//         setTimeout(() => router.replace("/login"), 5000); // 🚀 Redirect to login after animation
+//     }, []);
+//
+//     return (
+//         <View style={styles.container}>
+//             <VideoView
+//                 player={player}
+//                 style={{
+//                     width: Dimensions.get("window").width,
+//                     height: Dimensions.get("window").height,
+//                 }}
+//                 allowsFullscreen
+//                 allowsPictureInPicture
+//                 startsPictureInPictureAutomatically
+//             />
+//         </View>
+//     )
+// }
+//
+// const styles = StyleSheet.create({
+//     container: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#000" },
+//     video: { width: "100%", height: "100%" },
+// });
+//
+// // app/index.tsx (was intro.tsx)
+//
+//
+//
+
+
+import React, {useEffect} from "react";
 import { Text, View, TextInput, TouchableOpacity, StyleSheet, Image } from "react-native";
-import { Link, router  } from "expo-router";
+import { Link, router, useRouter  } from "expo-router";
 
 export default function Index() {
+
     // Making a function to go to home page and using this router to do history stack which is to save
     // the screen where the user was visited so it would go back to the page they last visted
     const handleLogin = () => {
@@ -10,8 +58,9 @@ export default function Index() {
     };
 
     return (
+
         <View style={styles.container}>
-             {/*Get the bit box image*/}
+            {/*Get the bit box image*/}
             <Image source={require("../assets/image-removebg-preview.png")} style={styles.logo} />
             <Text style={styles.title}>Welcome to BitBox!</Text>
             {/*Insert Username and password*/}

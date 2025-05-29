@@ -84,8 +84,8 @@ export default function Home() {
                 renderItem={({ item }) => (
                     // We use pahtname because now we click on the playlist we got different pages
                     <Link href={{
-                        pathname: "/playlist/[playlistId]",
-                        params: { playlistId: item.id }
+                        pathname: "/playlist/[playlistID]",
+                        params: { playlistID: item.id }
                     }}
                           asChild>
                         <TouchableOpacity style={styles.playlistRow} activeOpacity={0.7}>
