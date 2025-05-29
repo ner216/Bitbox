@@ -12,14 +12,14 @@ const playlistCovers = [
 ];
 
 export default function Home() {
-    // Here are some playlist name
+    // Here are some playlist names we making different one to test for now
     const [playlists, setPlaylists] = useState([
         { id: "1", name: "My Favorites", cover: playlistCovers[0] },
         { id: "2", name: "Workout Beats", cover: playlistCovers[1] },
         { id: "3", name: "Chill Vibes", cover: playlistCovers[2] },
         { id: "4", name: "Party Time", cover: playlistCovers[3] }
     ]);
-
+    // These are for the feature one
     const [featured, setFeatured] = useState([
         { id: "a", name: "Top Hits", cover: playlistCovers[4] },
         { id: "b", name: "Discover Weekly", cover: playlistCovers[2] },
@@ -50,7 +50,8 @@ export default function Home() {
         <View style={styles.container}>
             <View style={styles.headerRow}>
                 <Text style={styles.greeting}>Welcome to Bitbox!</Text>
-                {/*This is for the account button*/}
+                {/*This is for the account button which would go back to the account page but still
+                waiting for it */}
                 <Link href={"/"} asChild>
                     <TouchableOpacity style={styles.accountButton}>
                         <Text style={styles.accountIcon}>👤</Text>
@@ -58,8 +59,10 @@ export default function Home() {
                 </Link>
             </View>
 
-            {/* Thi is  Featured Playlists */}
+            {/* This is  Featured Playlists */}
             <Text style={styles.sectionTitle}>Featured</Text>
+
+            {/*This allow us to scroll if there are a lot of playlist*/}
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.featuredScroll}>
                 {featured.map(item => (
                     <View key={item.id} style={styles.featuredCard}>
@@ -69,7 +72,10 @@ export default function Home() {
                 ))}
             </ScrollView>
 
-            {/* The user playlist that they can scroll through */}
+            {/* The user playlist that they can scroll through. Here FlatList use because the user
+             can add playlist which would be a lot so Flatlist would render item when they about to
+             appear and remove them when they out of screen to save processing time*/}
+
             <Text style={styles.sectionTitle}>Your Playlists</Text>
             <FlatList
                 data={playlists}
@@ -77,13 +83,29 @@ export default function Home() {
                 showsVerticalScrollIndicator={false}
                 style={styles.playlistList}
                 renderItem={({ item }) => (
-                    <View style={styles.playlistRow}>
-                        <Image source={{ uri: item.cover }} style={styles.playlistImg} />
-                        <Text style={styles.playlistName}>{item.name}</Text>
-                        <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(item.id)}>
-                            <Text style={styles.deleteText}>Delete</Text>
+
+                    // We use pahtname because now we click on the playlist we got different pages
+                    <Link href={{
+                        pathname: "/playlist/[playlistID]",
+                        params: { playlistID: item.id }
+                    }}
+                          asChild>
+                        <TouchableOpacity style={styles.playlistRow} activeOpacity={0.7}>
+                            <Image source={{ uri: item.cover }} style={styles.playlistImg} />
+                            <Text style={styles.playlistName}>{item.name}</Text>
+                            {/* This is to prevent the delete button to trigger the navigation */}
+                            <TouchableOpacity
+                                style={styles.deleteButton}
+                                onPress={e => {
+                                    e.stopPropagation(); // Prevents navigation when deleting
+                                    handleDelete(item.id);
+                                }}
+                            >
+                                <Text style={styles.deleteText}>Delete</Text>
+                            </TouchableOpacity>
                         </TouchableOpacity>
-                    </View>
+                    </Link>
+
                 )}
                 ListEmptyComponent={<Text style={styles.empty}>No playlists yet.</Text>}
             />
@@ -235,5 +257,11 @@ const styles = StyleSheet.create({
         textAlign: "center",
         marginTop: 30,
         fontSize: 16,
+    },
+
+    playlist: {
+        color: "#fff",
+        fontSize: 16,
+        textDecorationLine: "underline",
     },
 });

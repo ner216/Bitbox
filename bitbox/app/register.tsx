@@ -5,7 +5,7 @@ import { Link } from "expo-router";
 export default function Register() {
     return (
         <View style={styles.container}>
-            {/*So this is for images and word*/}
+            {/*So this is for the mascot image*/}
             <Image source={require("../assets/image-removebg-preview.png")} style={styles.logo} />
             <Text style={styles.title}>Register for BitBox!</Text>
             {/*These are the input that user need to register, i don't know if we need anything else yet*/}
