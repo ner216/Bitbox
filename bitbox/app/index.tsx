@@ -9,6 +9,15 @@ export default function Index() {
         router.replace("/home");
     };
 
+
+export default function Index() {
+    // Handler for login button
+    const handleLogin = () => {
+        // TODO: Add authentication logic here
+        router.replace("/home"); // Navigates to home page and replaces login in history stack
+    };
+
+
     return (
         <View style={styles.container}>
              {/*Get the bit box image*/}
