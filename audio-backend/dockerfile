@@ -1,0 +1,11 @@
+FROM python:3.9.22-slim-bookworm
+
+WORKDIR /app
+
+COPY app/ .
+
+EXPOSE 8000
+
+# RUN pip install --no-cache-dir -r requirements.txt
+
+CMD ["python", "main.py"]
