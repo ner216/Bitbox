@@ -16,21 +16,21 @@ services:
     DB_NAME: bitbox
     DB_USER: bit_user # username for db
     DB_PASSWORD: password # Password for db
-  volumes:
+  #volumes:
     # Add volume to store data if needed.
   
 db:
-  image: postgres:13
+  image: postgres:16-alpine
   restart: always # Always restart if db crashes
   envirnment:
     # envirnment variables
     POSTGRES_DB: bitbox
     POSTGRES_USER: defaultbit
     POSTGRES_PASSWORD: password
-  volumes:
+  #volumes:
     # Add a volume here for db data to be saved.
-  ports:
+  #ports:
     # Add port mapping here
 
-volumes:
-  pgdata: # Declare named volume for database data
+#volumes:
+  #pgdata: # Declare named volume for database data

@@ -1,11 +1,13 @@
-FROM python:3.9.22-slim-bookworm
+FROM python:3.9.22-alpine3.22
 
-WORKDIR /app
+# Base directory in the docker container
+WORKDIR /audio-backend
 
-COPY app/ .
+# Copy all files to /app on container
+COPY . /audio-backend/
 
 EXPOSE 8000
 
-# RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-CMD ["python", "main.py"]
+CMD ["python", "app/main.py"]
