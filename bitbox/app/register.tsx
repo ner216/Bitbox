@@ -1,19 +1,19 @@
 import React from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from "react-native";
+import { View, Text, TextInput, StyleSheet, Image } from "react-native";
 import { Link } from "expo-router";
 
 export default function Register() {
     return (
         <View style={styles.container}>
             {/*So this is for the mascot image*/}
-            <Image source={require("../assets/image-removebg-preview.png")} style={styles.logo} />
+            <Image source={require("../assets/BitBox_Main_Logo-removebg-preview.png")} style={styles.logo} />
             <Text style={styles.title}>Register for BitBox!</Text>
             {/*These are the input that user need to register, i don't know if we need anything else yet*/}
             <TextInput placeholder="Username" placeholderTextColor="#fff" style={styles.input} />
             <TextInput placeholder="Email" placeholderTextColor="#fff" style={styles.input} />
             <TextInput placeholder="Password" placeholderTextColor="#fff" secureTextEntry style={styles.input} />
             {/*And this is just to get back to the login screen*/}
-            <Link href="/" style={styles.register}>If you have account already why you here? Login</Link>
+            <Link href="/login" style={styles.register}>If you have account already why you here? Login</Link>
         </View>
     );
 }

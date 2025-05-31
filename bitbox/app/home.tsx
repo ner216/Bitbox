@@ -52,7 +52,7 @@ export default function Home() {
                 <Text style={styles.greeting}>Welcome to Bitbox!</Text>
                 {/*This is for the account button which would go back to the account page but still
                 waiting for it */}
-                <Link href={"/"} asChild>
+                <Link href={"/login"} asChild>
                     <TouchableOpacity style={styles.accountButton}>
                         <Text style={styles.accountIcon}>👤</Text>
                     </TouchableOpacity>
@@ -118,7 +118,7 @@ export default function Home() {
 
             {/* Searching for music but waiting for the backend */}
             <View style={styles.bottomRow}>
-                <Link href={"/"} asChild>
+                <Link href={"/login"} asChild>
                     <TouchableOpacity style={styles.bottomNavButton}>
                         <Text style={styles.bottomNavText}>🔍 Search</Text>
                     </TouchableOpacity>

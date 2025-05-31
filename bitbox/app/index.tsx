@@ -1,149 +1,55 @@
-// import {StyleSheet, View, Dimensions} from "react-native";
-// import {useVideoPlayer, VideoView} from "expo-video";
-// import { useRouter } from "expo-router";
-// import React, { useEffect } from "react";
-//
-// const localSource = require("../assets/intro.mp4");
-//
-// export default function Intro() {
-//     const player = useVideoPlayer(localSource, (player) =>{
-//         // player.loop = true;
-//         player.staysActiveInBackground = true;
-//         player.play();
-//     })
-//
-//     const router = useRouter();
-//
-//     useEffect(() => {
-//         setTimeout(() => router.replace("/login"), 5000); // 🚀 Redirect to login after animation
-//     }, []);
-//
-//     return (
-//         <View style={styles.container}>
-//             <VideoView
-//                 player={player}
-//                 style={{
-//                     width: Dimensions.get("window").width,
-//                     height: Dimensions.get("window").height,
-//                 }}
-//                 allowsFullscreen
-//                 allowsPictureInPicture
-//                 startsPictureInPictureAutomatically
-//             />
-//         </View>
-//     )
-// }
-//
-// const styles = StyleSheet.create({
-//     container: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#000" },
-//     video: { width: "100%", height: "100%" },
-// });
-//
-// // app/index.tsx (was intro.tsx)
-//
-//
-//
+import {StyleSheet, View, Image, Dimensions} from "react-native";
+// import {useVideoPlayer} from "expo-video";
+import { useRouter } from "expo-router";
+import React, { useEffect } from "react";
 
+export default function Intro() {
+    const router = useRouter();
+    useEffect(() => {
+        setTimeout(() => router.replace("/login"), 2500);
+    }, );
 
-import React, {useEffect} from "react";
-import { Text, View, TextInput, TouchableOpacity, StyleSheet, Image } from "react-native";
-import { Link, router, useRouter  } from "expo-router";
-
-export default function Index() {
-
-    // Making a function to go to home page and using this router to do history stack which is to save
-    // the screen where the user was visited so it would go back to the page they last visted
-    const handleLogin = () => {
-        router.replace("/home");
-    };
-
+    const windowWidth = Dimensions.get("window").width;
+    const windowHeight = Dimensions.get("window").height;
     return (
-
         <View style={styles.container}>
-            {/*Get the bit box image*/}
-
-            <Image source={require("../assets/image-removebg-preview.png")} style={styles.logo} />
-            <Text style={styles.title}>Welcome to BitBox!</Text>
-            {/*Insert Username and password*/}
-            <TextInput
-                placeholder="Username"
-                placeholderTextColor="#fff"
-                style={styles.input}
-            />
-
-            <TextInput
-                placeholder="Password"
-                placeholderTextColor="#fff"
-                secureTextEntry
-                style={styles.input}
-            />
-            {/*Making login and the register button*/}
-            <TouchableOpacity style={styles.button} onPress={handleLogin}>
-                <Text style={styles.buttonText}>Log In </Text>
-            </TouchableOpacity>
-
-            <Text style={styles.newHere}>New Here?</Text>
-            <Link href={"/register"} style={styles.register}>Register Now</Link>
+            <Image source={require("../assets/splash.gif")}
+                   style={{ width: windowWidth,height: windowHeight, alignSelf:'center'}}
+                   resizeMode="cover"
+                   />
         </View>
-    );
+    )
 }
-
-
-// These are the style or bascially things to help design the UI
-
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#0000ff",
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    logo: {
-        width: 180,
-        height: 120,
-        marginBottom: 20,
-        resizeMode: "contain",
-    },
-    title: {
-        color: "#fff",
-        fontSize: 28,
-        marginBottom: 40,
-        fontWeight: "bold",
-    },
-    input: {
-        width: 250,
-        height: 40,
-        borderColor: "#fff",
-        borderWidth: 2,
-        borderRadius: 4,
-        marginBottom: 20,
-        color: "#fff",
-        paddingHorizontal: 12,
-        fontSize: 18,
-        backgroundColor: "rgba(0,0,0,0.2)",
-    },
-    button: {
-        backgroundColor: "#2222ff",
-        paddingVertical: 10,
-        paddingHorizontal: 60,
-        borderRadius: 4,
-        marginBottom: 30,
-        borderWidth: 1,
-        borderColor: "#fff",
-    },
-    buttonText: {
-        color: "#fff",
-        fontSize: 18,
-    },
-    newHere: {
-        color: "#fff",
-        fontSize: 16,
-        marginBottom: 8,
-    },
-    register: {
-        color: "#fff",
-        fontSize: 16,
-        textDecorationLine: "underline",
-    },
-
+    container: { flex: 1,justifyContent: "center",alignItems: "center", overflow: "hidden" },
+    video: { width: "100%", height: "100%" },
 });
+
+// backgroundColor: "#000"
+
+
+
+// const localSource = require("../assets/intro.mp4");
+// const player = useVideoPlayer(localSource, (player) =>{
+//     player.staysActiveInBackground = true;
+//     player.play();
+// })
+
+// app/index.tsx (was intro.tsx)
+{/*<VideoView*/}
+{/*    source={require("../assets/intro.mp4")}*/}
+{/*    autoPlay*/}
+{/*    loop={false}*/}
+{/*    player={player}*/}
+{/*    style={{*/}
+{/*        width: Dimensions.get("window").width,*/}
+{/*        height: Dimensions.get("window").height,*/}
+{/*    }}*/}
+{/*    allowsFullscreen*/}
+{/*    allowsPictureInPicture*/}
+{/*    startsPictureInPictureAutomatically*/}
+{/*/>*/}
+
+
+
+
