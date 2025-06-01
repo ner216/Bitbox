@@ -112,7 +112,7 @@ export default function PlaylistPage() {
             {/* The back button well to go back to home page */}
             <TouchableOpacity
                 style={styles.backButton}
-                onPress={() => router.back()}
+                onPress={() => router.replace("/home")}
             >
                 <Text style={styles.backButtonText}>← Back</Text>
             </TouchableOpacity>
