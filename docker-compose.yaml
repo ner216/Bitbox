@@ -3,34 +3,31 @@ version: '3.8' # Version of docker compose file format
 services:
   # Python backend service
   backend:
-    build:
-    context: ./audio-backend/ #path to backend docker file
-    dockerfile: dockerfile
-  ports:
-    - "8000:8000"
-  depends_on:
-    - db
-  envirnment:
-    # Envirnment variables
-    DB_HOST: db
-    DB_NAME: bitbox
-    DB_USER: bit_user # username for db
-    DB_PASSWORD: password # Password for db
-  #volumes:
-    # Add volume to store data if needed.
-  
-db:
-  image: postgres:16-alpine
-  restart: always # Always restart if db crashes
-  envirnment:
-    # envirnment variables
-    POSTGRES_DB: bitbox
-    POSTGRES_USER: defaultbit
-    POSTGRES_PASSWORD: password
-  #volumes:
-    # Add a volume here for db data to be saved.
-  #ports:
-    # Add port mapping here
+    build: ./audio-backend/ #path to backend docker file and application
+    container_name: "python_backend"
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      # Envirnment variables
+      DB_HOST: db
+      DB_NAME: bitbox
+      DB_USER: bit_user # username for db
+      DB_PASSWORD: password # Password for db
+      #volumes:
+      # Add volume to store data if needed.
+    #command: "python main.py"  # Add commands to be run at container startup
 
-#volumes:
-  #pgdata: # Declare named volume for database data
+  db:
+    image: postgres:16-alpine
+    restart: always # Always restart if db crashes
+    environment:
+      # envirnment variables
+      POSTGRES_DB: bitbox
+      POSTGRES_USER: defaultbit
+      POSTGRES_PASSWORD: password
+    #volumes:
+      #- db_data: postgresql/data # Add a directory path where you would like to store db data.
+    #ports:
+    # Add port mapping here
