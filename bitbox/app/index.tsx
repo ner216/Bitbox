@@ -6,14 +6,14 @@ import React, { useEffect } from "react";
 export default function Intro() {
     const router = useRouter();
     useEffect(() => {
-        setTimeout(() => router.replace("/login"), 2500);
+        setTimeout(() => router.replace("/login"), 2000);
     }, );
 
     const windowWidth = Dimensions.get("window").width;
     const windowHeight = Dimensions.get("window").height;
     return (
         <View style={styles.container}>
-            <Image source={require("../assets/splash.gif")}
+            <Image source={require("../assets/newintro.gif")}
                    style={{ width: windowWidth,height: windowHeight, alignSelf:'center'}}
                    resizeMode="cover"
                    />

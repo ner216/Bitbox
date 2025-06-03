@@ -1,24 +1,76 @@
 import React from "react";
-import { View, Text, TextInput, StyleSheet, Image } from "react-native";
+import {View, Text, TextInput, StyleSheet, Dimensions} from "react-native";
 import { Link } from "expo-router";
+import Animated, {useSharedValue,
+    useAnimatedStyle,
+    withTiming,
+    withRepeat,
+    FadeInUp,
+    FadeInDown} from "react-native-reanimated";
+import {LinearGradient} from "expo-linear-gradient";
 
+//, Image
 export default function Register() {
+    const { width} = Dimensions.get("window");
+    const translateX = useSharedValue(100); // Starts far left
+
+    React.useEffect(() => {
+        translateX.value = withRepeat(
+            withTiming(width, { duration: 3000 }), // it make it move for 3s
+            -1, // To loop infinitely
+            true // No alternate direction, making smooth looping
+        );
+    }, );
+
+    // Making movement animation
+    const animatedStyle = useAnimatedStyle(() => ({
+        transform: [{ translateX: translateX.value }],
+    }));
     return (
         <View style={styles.container}>
+            <Animated.View style={[styles.background ,animatedStyle]}>
+                <LinearGradient
+                    colors={["#0000ff", "white"]}
+                    start={{ x: 15, y: 0 }}
+                    end={{ x: 20, y: 0 }}
+                    style={styles.gradient}
+                />
+            </Animated.View>
             {/*So this is for the mascot image*/}
-            <Image source={require("../assets/BitBox_Main_Logo-removebg-preview.png")} style={styles.logo} />
+            <Animated.Image source={require("../assets/BitBox_Main_Logo-removebg-preview.png")}
+                            style={styles.logo}
+                            entering={FadeInUp.duration(1000).springify()}
+            />
+            <Animated.View entering={FadeInDown.delay(200).duration(1000).springify()}>
             <Text style={styles.title}>Register for BitBox!</Text>
+            </Animated.View>
+            <Animated.View entering={FadeInDown.duration(1000).springify()}>
             {/*These are the input that user need to register, i don't know if we need anything else yet*/}
             <TextInput placeholder="Username" placeholderTextColor="#fff" style={styles.input} />
+            </Animated.View>
+            <Animated.View entering={FadeInDown.delay(200).duration(1000).springify()}>
             <TextInput placeholder="Email" placeholderTextColor="#fff" style={styles.input} />
+            </Animated.View>
+            <Animated.View entering={FadeInDown.delay(400).duration(1000).springify()}>
             <TextInput placeholder="Password" placeholderTextColor="#fff" secureTextEntry style={styles.input} />
+            </Animated.View>
             {/*And this is just to get back to the login screen*/}
+            <Animated.View entering={FadeInDown.delay(600).duration(1000).springify()}>
             <Link href="/login" style={styles.register}>If you have account already why you here? Login</Link>
+            </Animated.View>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
+    background: {
+        position: 'absolute',
+        width: "800%",
+        height: "100%",
+    },
+    gradient: {
+        flex: 1,
+    },
     container: {
         flex: 1,
         backgroundColor: "#0000ff",
