@@ -1,5 +1,6 @@
 import psycopg2
 from psycopg2 import OperationalError
+from psycopg2.pool import SimpleConnectionPool
 import os
 
 # Get envirnment variables from linux container

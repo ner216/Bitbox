@@ -1,11 +1,12 @@
-from db.interface import db_interface
+from db.interface import db_interface # Database interface
 
-print("[INFO] Backend application is starting...")
 
-print("[INFO] Starting db test...")
-interface = db_interface()
-interface.start()
-interface.load_schema("app/db/bitbox_schema.sql")
-interface.execute_query("SELECT * FROM Songs")
+print("[INFO] Backend application has started.")
 
-print("[INFO] TEST COMPLETE!")
+
+# Test scripts for unit testing, uncomment the tests you want to run
+#from tests.db_interface_tests import run_all_tests
+#db_test_results = run_all_tests() # Run all database tests
+
+
+
