@@ -13,8 +13,9 @@ services:
       # Envirnment variables
       DB_HOST: db
       DB_NAME: bitbox
-      DB_USER: bit_user # username for db
+      DB_USER: defaultbit # username for db
       DB_PASSWORD: password # Password for db
+      DB_PORT: 5432
       #volumes:
       # Add volume to store data if needed.
     #command: "python main.py"  # Add commands to be run at container startup
