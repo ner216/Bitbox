@@ -1,0 +1,4 @@
+# Python virtual environment
+.venv/
+# Pyenv version files
+.python-version
