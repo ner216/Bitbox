@@ -1,24 +1,42 @@
 //TouchableOpacity,Image,
-import React from "react";
+import React, {useState} from "react";
 import { Text, View, TextInput, StyleSheet, Pressable,Dimensions } from "react-native";
 import { Link, router} from "expo-router";
 import {LinearGradient} from "expo-linear-gradient";
-import Animated, {
-    useSharedValue,
-    useAnimatedStyle,
-    withTiming,
-    withRepeat,
-    FadeInUp,
-    FadeInDown
+import Animated, {useSharedValue, useAnimatedStyle, withTiming, withRepeat, FadeInUp, FadeInDown
 } from "react-native-reanimated";
-
+import axios from "axios";
 
 export default function Index() {
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+
     const { width} = Dimensions.get("window");
     // Making a function to go to home page and using this router to do history stack which is to save
     // the screen where the user was visited so it would go back to the page they last visted
-    const handleLogin = () => {
-        router.replace("/home");
+    // const handleLogin = () => {
+    //     router.replace("/home");
+    // };
+    const handleLogin = async () => {
+        try {
+            // const response = await axios.post("https://your-backend-url.com/login", {
+            //     username,
+            //     password,
+            // });
+            const mockResponse = {
+                success: username === "testuser" && password === "password123",
+            };
+
+            if (mockResponse.success) {
+                router.replace("/home"); // Navigate to home page
+            } else {
+                setErrorMessage("Invalid credentials. Please try again.");
+            }
+        } catch (error) {
+            console.error("Login error:", error);
+            setErrorMessage("Network error. Please check your connection.");
+        }
     };
     const translateX = useSharedValue(100); // Starts far left
 
@@ -29,7 +47,6 @@ export default function Index() {
             true // No alternate direction, making a smooth looping
         );
     }, );
-
     // Making movement animation
     const animatedStyle = useAnimatedStyle(() => ({
         transform: [{ translateX: translateX.value }],
@@ -58,6 +75,7 @@ export default function Index() {
                 placeholder="Username"
                 placeholderTextColor="#fff"
                 style={styles.input}
+                value={username} onChangeText={setUsername}
             />
             </Animated.View>
             <Animated.View entering={FadeInDown.delay(200).duration(1000).springify()}>
@@ -66,6 +84,7 @@ export default function Index() {
                 placeholderTextColor="#fff"
                 secureTextEntry
                 style={styles.input}
+                value={password} onChangeText={setPassword}
             />
             </Animated.View>
             {/*Making login and the register button*/}
@@ -78,6 +97,8 @@ export default function Index() {
                 <Text style={styles.buttonText}>Log In </Text>
             </Pressable>
             </Animated.View>
+            {/* Error Message */}
+            {errorMessage ? <Text style={{ color: "red", marginTop: 10 }}>{errorMessage}</Text> : null}
 
             <Animated.View entering={FadeInDown.delay(600).duration(1000).springify()}>
             <Text style={styles.newHere}>New Here?</Text>

@@ -83,7 +83,7 @@ export default function Home() {
                 showsVerticalScrollIndicator={false}
                 style={styles.playlistList}
                 renderItem={({ item }) => (
-                    <View>
+                    <View style={styles.playlistHome}>
                     {/*// We use pahtname because now we click on the playlist we got different pages*/}
                     <Link href={{
                         pathname: "/playlist/[playlistID]",
@@ -215,9 +215,11 @@ const styles = StyleSheet.create({
     deleteButton: {
         backgroundColor: "#ff4444",
         paddingVertical: 6,
-        paddingHorizontal: 14,
+        paddingHorizontal: 12,
         borderRadius: 6,
-        marginLeft: 8,
+        // marginLeft: 8,
+        alignItems: "center",
+        marginLeft: "auto", // Pushes it as far right as possible
     },
     deleteText: {
         color: "#fff",
@@ -264,5 +266,13 @@ const styles = StyleSheet.create({
         color: "#fff",
         fontSize: 16,
         textDecorationLine: "underline",
+    },
+    playlistHome: {
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: "#2222ff",
+        borderRadius: 10,
+        marginBottom: 12,
+        padding: 10,
     },
 });
