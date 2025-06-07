@@ -1,16 +1,18 @@
-import React from "react";
-import {View, Text, TextInput, StyleSheet, Dimensions} from "react-native";
-import { Link } from "expo-router";
-import Animated, {useSharedValue,
-    useAnimatedStyle,
-    withTiming,
-    withRepeat,
-    FadeInUp,
+import React,  { useState }  from "react";
+import {View, Text, TextInput, StyleSheet,Pressable, Dimensions} from "react-native";
+import { Link, router } from "expo-router"
+// import axios from "axios";
+import Animated, {useSharedValue,useAnimatedStyle,withTiming,withRepeat,FadeInUp,
     FadeInDown} from "react-native-reanimated";
 import {LinearGradient} from "expo-linear-gradient";
 
 //, Image
 export default function Register() {
+    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [message, setMessage] = useState("");
+
     const { width} = Dimensions.get("window");
     const translateX = useSharedValue(100); // Starts far left
 
@@ -26,6 +28,29 @@ export default function Register() {
     const animatedStyle = useAnimatedStyle(() => ({
         transform: [{ translateX: translateX.value }],
     }));
+
+    // Function to handle registration
+    const handleRegister = async () => {
+        try {
+            // const response = await axios.post("https://your-backend-url.com/register", {
+            //     username,
+            //     email,
+            //     password,
+            // });
+            const mockResponse = {
+                success: username.length > 3 && email.includes("@") && password.length > 5,
+            };
+            if (mockResponse.success) {
+                setMessage("Registration successful! Redirecting to login...");
+                setTimeout(() => router.replace("/login"), 2000);
+            } else {
+                setMessage("Registration failed. Please try again.");
+            }
+        } catch (error) {
+            console.error("Registration error:", error);
+            setMessage("Network error. Please check your connection.");
+        }
+    };
     return (
         <View style={styles.container}>
             <Animated.View style={[styles.background ,animatedStyle]}>
@@ -42,18 +67,25 @@ export default function Register() {
                             entering={FadeInUp.duration(1000).springify()}
             />
             <Animated.View entering={FadeInDown.delay(200).duration(1000).springify()}>
-            <Text style={styles.title}>Register for BitBox!</Text>
+                <Text style={styles.title}>Register for BitBox!</Text>
             </Animated.View>
             <Animated.View entering={FadeInDown.duration(1000).springify()}>
             {/*These are the input that user need to register, i don't know if we need anything else yet*/}
-            <TextInput placeholder="Username" placeholderTextColor="#fff" style={styles.input} />
+            <TextInput placeholder="Username" placeholderTextColor="#fff" style={styles.input} value={username} onChangeText={setUsername}  />
             </Animated.View>
             <Animated.View entering={FadeInDown.delay(200).duration(1000).springify()}>
-            <TextInput placeholder="Email" placeholderTextColor="#fff" style={styles.input} />
+            <TextInput placeholder="Email" placeholderTextColor="#fff" style={styles.input} value={email} onChangeText={setEmail} />
             </Animated.View>
             <Animated.View entering={FadeInDown.delay(400).duration(1000).springify()}>
-            <TextInput placeholder="Password" placeholderTextColor="#fff" secureTextEntry style={styles.input} />
+            <TextInput placeholder="Password" placeholderTextColor="#fff" secureTextEntry style={styles.input} value={password} onChangeText={setPassword}  />
             </Animated.View>
+
+            {/* Register Button */}
+            <Pressable style={styles.button} onPress={handleRegister}>
+                <Text style={styles.buttonText}>Register</Text>
+            </Pressable>
+            {/* Display message (success or error) */}
+            {message ? <Text style={{ color: "red", marginTop: 10 }}>{message}</Text> : null}
             {/*And this is just to get back to the login screen*/}
             <Animated.View entering={FadeInDown.delay(600).duration(1000).springify()}>
             <Link href="/login" style={styles.register}>If you have account already why you here? Login</Link>
