@@ -84,6 +84,7 @@ class db_interface(object):
         print(f"[INFO] Current directory '{os.getcwd()}' [db_interface::__init__]")
 
 
+    # Method to load database schema into Postgres container -------------------------------------------------------
     def load_schema(self, schema_file_path) -> bool:
         if not os.path.exists(schema_file_path):
             print("[ERROR] Schema file does not exist! [db_interface::load_schema]")
@@ -113,6 +114,7 @@ class db_interface(object):
                 self.pool.return_conn(conn)
 
 
+    # General method for PostgreSQL queries ------------------------------------------------------------------------
     def execute_query(self, sql, params=None ,fetch_one=False, fetch_all=False, commit=False):
         try:
             result = None
@@ -121,14 +123,17 @@ class db_interface(object):
             
             curr.execute(sql, params)
             
-            if fetch_all == True:
+            if fetch_all == True and fetch_one == False and commit == False:
                 result = curr.fetchall()
-            elif fetch_one == True:
+            elif fetch_one == True and fetch_all == False and commit == False:
                 result = curr.fetchone()
-            elif commit == True: # If a commit is requested for a DML opteration
+            # If a commit is requested for a DML opteration
+            elif commit == True and fetch_all == False and fetch_one == False: 
                 conn.commit()
-            else: # For DDL operation or SELECT where fetch is not needed. 
-                pass
+            elif commit == False and fetch_one == False and fetch_all == False:
+                pass # For DDL operation or SELECT where fetch is not needed.
+            else:  
+                print(f"[ERROR] Improper parameter sent to execute_query [db_interface::execute_query]\n Error: {e}")
 
         except psycopg2.Error as e:
             print(f"[ERROR] Unable fullfill transaction! [db_interface::execute_query]\n Error: {e}")
@@ -142,5 +147,98 @@ class db_interface(object):
             if conn:
                 conn.commit()
                 self.pool.return_conn(conn)
+
+        return result
+    
+
+    # Methods for creating database entries --------------------------------------------------------------------------
+    def create_user(self, username: str, password: str):
+        self.execute_query(
+            "INSERT INTO Users (username, password) VALUES (%s, %s)",
+            params=(username, password),
+            commit=True
+        )
+    
+
+    def create_song(self, title:str, artist:str, album:str, genre:str, duration:int, release_year:int, audio_file_url:str, cover_image_url:str):
+        self.execute_query(
+            "INSERT INTO Songs (title,artist,album,genre,duration_seconds,release_year,audio_file_url,cover_image_url) VALUES (%s,%s,%s,%s,%d,%d,%s,%s)",
+            params=(title,artist,album,genre,duration,release_year,audio_file_url,cover_image_url),
+            commit=True
+        )
+    
+
+    def create_playlist(self, user_id:int, name:str, desc:str):
+        self.execute_query(
+            "INSERT INTO Playlists (user_id, name, description) VALUES (%d,%s,%s)",
+            params=(user_id, name, desc),
+            commit=True
+        )
+    
+
+    def create_playlist_song(self, playlist_id:int, song_id:int):
+        self.execute_query(
+            "INSERT INTO PlaylistSongs (playlist_id, song_id) VALUES (%d,%d)",
+            params=(playlist_id, song_id),
+            commit=True
+        )
+    
+
+    # Methods for searching the database
+    def get_song_by_name(self, name:str) -> list:
+        result = self.execute_query(
+            "SELECT * FROM Songs WHERE name = $s",
+            params=(name),
+            fetch_one=True
+        )
+
+        return result
+    
+    
+    def get_song_by_id(self, id:int) -> list:
+        result = self.execute_query(
+            "SELECT * FROM Songs WHERE id = $d",
+            params=(id),
+            fetch_one=True
+        )
+
+        return result
+    
+
+    def get_user_by_id(self, id:int) -> list:
+        result = self.execute_query(
+            "SELECT * FROM Users WHERE id = $d",
+            params=(id),
+            fetch_one=True
+        )
+
+        return result
+    
+    
+    def get_playlist_by_user_id(self, id:int) -> list:
+        result = self.execute_query(
+            "SELECT * FROM Playlists WHERE user_id = $d",
+            params=(id),
+            fetch_all=True
+        )
+
+        return result
+    
+
+    def get_playlist_by_id(self, id:int) -> list:
+        result = self.execute_query(
+                "SELECT * FROM Playlists WHERE id = $d",
+                params=(id),
+                fetch_one=True
+            )
+
+        return result
+    
+    def get_playlistSongs_by_playlist_id(self, id:int):
+        result = self.execute_query(
+                "SELECT * FROM PlaylistSongs WHERE playlist_id = $d",
+                params=(id),
+                fetch_all=True
+            )
 
         return result
