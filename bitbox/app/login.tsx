@@ -5,7 +5,7 @@ import { Link, router} from "expo-router";
 import {LinearGradient} from "expo-linear-gradient";
 import Animated, {useSharedValue, useAnimatedStyle, withTiming, withRepeat, FadeInUp, FadeInDown
 } from "react-native-reanimated";
-import axios from "axios";
+// import axios from "axios";
 
 export default function Index() {
     const [username, setUsername] = useState("");
@@ -25,7 +25,7 @@ export default function Index() {
             //     password,
             // });
             const mockResponse = {
-                success: username === "testuser" && password === "password123",
+                success: username === "ka" && password === "123",
             };
 
             if (mockResponse.success) {

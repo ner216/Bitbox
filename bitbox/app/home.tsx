@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, FlatList, ScrollView, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { Link } from "expo-router";
 
@@ -9,41 +9,144 @@ const playlistCovers = [
     "https://th.bing.com/th/id/OIP.hIBTTQYyM62dGKLKRwNEVgHaE8?rs=1&pid=ImgDetMain",
     "https://yt3.googleusercontent.com/TzxKREFGZv5Y5gC6Xfn6tBmZaxvH5drZkb85nlsOGz8ZS7JP5cH9Eq7RojqzMeR4lEP8X31VdA=s160-c-k-c0x00ffffff-no-rj",
     "https://yt3.googleusercontent.com/ytc/AIdro_loWQXLsqV3P69g6rJcCH-pddw2GiF7HvoMWXuLOsRLLw=s160-c-k-c0x00ffffff-no-rj"
-];
+]
 
 export default function Home() {
     // Here are some playlist names we making different one to test for now
-    const [playlists, setPlaylists] = useState([
-        { id: "1", name: "My Favorites", cover: playlistCovers[0] },
-        { id: "2", name: "Workout Beats", cover: playlistCovers[1] },
-        { id: "3", name: "Chill Vibes", cover: playlistCovers[2] },
-        { id: "4", name: "Party Time", cover: playlistCovers[3] }
-    ]);
+    // const [playlists, setPlaylists] = useState([
+    //     { id: "1", name: "My Favorites", cover: playlistCovers[0] },
+    //     { id: "2", name: "Workout Beats", cover: playlistCovers[1] },
+    //     { id: "3", name: "Chill Vibes", cover: playlistCovers[2] },
+    //     { id: "4", name: "Party Time", cover: playlistCovers[3] }
+    // ]);
     // These are for the feature one
     const [featured, setFeatured] = useState([
         { id: "a", name: "Top Hits", cover: playlistCovers[4] },
-        { id: "b", name: "Discover Weekly", cover: playlistCovers[2] },
-        { id: "c", name: "Release Radar", cover: playlistCovers[1] }
+        { id: "b", name: " Weekly", cover: playlistCovers[2] },
+        { id: "c", name: "Release", cover: playlistCovers[1] }
     ]);
 
     // This is to delete the playlist you don't want
-    const handleDelete = (id: string) => {
-        setPlaylists(playlists.filter(pl => pl.id !== id));
-    };
+    // const handleDelete = (id: string) => {
+    //     setPlaylists(playlists.filter(pl => pl.id !== id));
+    // };
 
     // Well this is to add the playlist, maybe thinking to change name as well but for now default will be
     // New Playlist with the id number
-    const handleAddPlaylist = () => {
-        const newIdNum = playlists.length + 1;
-        setPlaylists([
-            ...playlists,
-            {
-                id: newIdNum.toString(),
-                name: `New Playlist ${newIdNum}`,
-                cover: playlistCovers[newIdNum % playlistCovers.length]
-            }
-        ]);
+    // const handleAddPlaylist = () => {
+    //     const newIdNum = playlists.length + 1;
+    //     setPlaylists([
+    //         ...playlists,
+    //         {
+    //             id: newIdNum.toString(),
+    //             name: `New Playlist ${newIdNum}`,
+    //             cover: playlistCovers[newIdNum % playlistCovers.length]
+    //         }
+    //     ]);
+    //
+    // };
+    type Playlist = { id: string; name: string; cover: string };
+    const [playlists, setPlaylists] = useState<Playlist[]>([]);
 
+    //When back end ready
+    // useEffect(() => {
+    //     const fetchPlaylists = async () => {
+    //         try {
+    //             const response = await fetch("https://your-backend-api.com/playlists");
+    //             const data = await response.json();
+    //             setPlaylists(data); // Set the fetched playlists
+    //         } catch (error) {
+    //             console.error("Error fetching playlists:", error);
+    //         }
+    //     };
+    //     fetchPlaylists();
+    // }, );
+    useEffect(() => {
+        const fetchPlaylists = async () => {
+            try {
+                const response = await fetch("http://localhost:3000/playlists");
+                const data = await response.json();
+                setPlaylists(data); // Update state with fresh data
+            } catch (error) {
+                console.error("Error fetching playlists:", error);
+            }
+        };
+
+        fetchPlaylists();
+    }, []);
+
+
+    //when backend ready
+    // const handleDelete = async (id: string) => {
+    //     try {
+    //         await fetch(`https://your-backend-api.com/playlists/${id}`, {
+    //             method: "DELETE",
+    //         });
+    //         setPlaylists(playlists.filter(pl => pl.id !== id)); // Remove locally after backend confirms
+    //     } catch (error) {
+    //         console.error("Error deleting playlist:", error);
+    //     }
+    // };
+    const handleDelete = async (id: string) => {
+        try {
+            const response = await fetch(`http://localhost:3000/playlists/${id}`, {
+                method: "DELETE",
+            });
+
+            if (!response.ok) throw new Error("Failed to delete playlist");
+
+            // Fetch updated playlists from json-server to ensure UI syncs
+            const updatedResponse = await fetch("http://localhost:3000/playlists");
+            const updatedPlaylists = await updatedResponse.json();
+            setPlaylists(updatedPlaylists); // Sync state with backend data
+        } catch (error) {
+            console.error("Error deleting playlist:", error);
+        }
+    };
+
+    //When backend ready
+    // const handleAddPlaylist = async () => {
+    //     const newIdNum = playlists.length + 1;
+    //     const newPlaylist = {
+    //         id: newIdNum.toString(),
+    //         name: `New Playlist ${newIdNum}`,
+    //         cover: playlistCovers[newIdNum % playlistCovers.length],
+    //     };
+    //
+    //     try {
+    //         const response = await fetch("https://your-backend-api.com/playlists", {
+    //             method: "POST",
+    //             headers: { "Content-Type": "application/json" },
+    //             body: JSON.stringify(newPlaylist),
+    //         });
+    //
+    //         if (!response.ok) throw new Error("Failed to add playlist");
+    //
+    //         setPlaylists([...playlists, newPlaylist]); // Update frontend if backend succeeds
+    //     } catch (error) {
+    //         console.error("Error adding playlist:", error);
+    //     }
+    // };
+    const handleAddPlaylist = async () => {
+        const newPlaylist = {
+            name: `New Playlist ${playlists.length + 1}`,
+            cover: playlistCovers[playlists.length % playlistCovers.length],
+        };
+
+        try {
+            const response = await fetch("http://localhost:3000/playlists", { // Use local json-server
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(newPlaylist),
+            });
+
+            if (!response.ok) throw new Error("Failed to add playlist");
+
+            const addedPlaylist = await response.json(); // json-server auto-generates an ID
+            setPlaylists([...playlists, addedPlaylist]); // Add new playlist to state
+        } catch (error) {
+            console.error("Error adding playlist:", error);
+        }
     };
 
     return (
@@ -139,7 +242,8 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
-        marginBottom: 14,
+        marginBottom: 5,
+        // 28
     },
     greeting: {
         color: "#fff",
@@ -159,7 +263,7 @@ const styles = StyleSheet.create({
         color: "#fff",
         fontSize: 20,
         fontWeight: "600",
-        marginTop: 20,
+        marginTop: 10,
         marginBottom: 10,
     },
     featuredScroll: {
@@ -174,13 +278,14 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         alignItems: "center",
         justifyContent: "center",
-        padding: 8,
+        padding: 28,
     },
     featuredImg: {
-        width: 80,
-        height: 80,
+        width: 70,
+        height: 70,
         borderRadius: 10,
-        marginBottom: 6,
+        marginBottom: 0,
+        // 6
     },
     featuredText: {
         color: "#fff",
@@ -197,8 +302,10 @@ const styles = StyleSheet.create({
         alignItems: "center",
         backgroundColor: "#2222ff",
         borderRadius: 10,
-        marginBottom: 12,
-        padding: 10,
+        marginBottom: 0,
+        // 12
+        padding: 0,
+        // 10
     },
     playlistImg: {
         width: 48,
