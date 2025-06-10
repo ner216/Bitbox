@@ -5,20 +5,14 @@ CREATE TABLE Users (
     password VARCHAR(100) NOT NULL UNIQUE
 );
 
-CREATE INDEX idx_users_email ON Users (email);
-
 CREATE TABLE Songs (
     song_id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     artist VARCHAR(255) NOT NULL,
-    album VARCHAR(255),
     genre VARCHAR(100),
     duration_seconds INTEGER NOT NULL,
-    release_year INTEGER,
     audio_file_url TEXT NOT NULL UNIQUE,
-    cover_image_url TEXT,
-    uploaded_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-    similar_song_id UUID NOT NULL REFERENCES Songs(song_id) ON DELETE CASCADE
+    similar_song_id SERIAL REFERENCES Songs(song_id) ON DELETE CASCADE
 );
 
 CREATE INDEX idx_songs_title ON Songs (title);
