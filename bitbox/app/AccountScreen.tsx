@@ -29,6 +29,18 @@ export default function AccountScreen() {
 
     const AnimatedBox = Animated.createAnimatedComponent(View);
 
+    const playlists = [
+        { name: "Playlist 1", minutes: 88,  coverArt: "https://backend.com/images/something.jpg"},
+        { name: "Playlist 2", minutes: 45, coverArt: "https://backend.com/images/something2.jpg"},
+        { name: "Playlist 3", minutes: 73, coverArt: "https://backend.com/images/something3.jpg"},
+        { name: "Playlist 4", minutes: 31, coverArt: "https://backend.com/images/something4.jpg"},
+    ];
+
+    const topPlaylists = playlists
+        .sort((a, b) => b.minutes - a.minutes)
+        .slice(0, 3);
+
+
     return (
         <View style={styles.container}>
             <Image
@@ -47,36 +59,26 @@ export default function AccountScreen() {
             <Text style={styles.label}>My Top Playlists:</Text>
 
             {/*The boxes for the playlists, *pressable* makes them clickable*/}
-            <View style={styles.playlistRow}>
-                {/* Box 1 */}
-                <Pressable
-                    onHoverIn={() => onHoverIn(scale1)}
-                    onHoverOut={() => onHoverOut(scale1)}
-                >
-                    <AnimatedBox
-                        style={[styles.playlistBox, { transform: [{ scale: scale1 }] }]}
-                    />
-                </Pressable>
-
-                {/* Box 2 */}
-                <Pressable
-                    onHoverIn={() => onHoverIn(scale2)}
-                    onHoverOut={() => onHoverOut(scale2)}
-                >
-                    <AnimatedBox
-                        style={[styles.playlistBox, { transform: [{ scale: scale2 }] }]}
-                    />
-                </Pressable>
-
-                {/* Box 3 */}
-                <Pressable
-                    onHoverIn={() => onHoverIn(scale3)}
-                    onHoverOut={() => onHoverOut(scale3)}
-                >
-                    <AnimatedBox
-                        style={[styles.playlistBox, { transform: [{ scale: scale3 }] }]}
-                    />
-                </Pressable>
+            <View style={styles.playlistContainer}>
+                {topPlaylists.map((playlist, index) => {
+                    const scale = [scale1, scale2, scale3][index];
+                    return (
+                        <Pressable
+                            key={playlist.name}
+                            onHoverIn={() => onHoverIn(scale)}
+                            onHoverOut={() => onHoverOut(scale)}
+                        >
+                            <AnimatedBox
+                                style={[styles.playlistBox, { transform: [{ scale }] }]}
+                            >
+                                <Image
+                                    source={{ uri: playlist.coverArt }}
+                                    style={styles.albumImage}
+                                />
+                            </AnimatedBox>
+                        </Pressable>
+                    );
+                })}
             </View>
         </View>
     );
@@ -128,5 +130,29 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderColor: "#fff",
         marginHorizontal: 10,
+        justifyContent: "center",
+        alignItems: "center",
+        padding: 4,
     },
+
+    playlistText: {
+        color: "#fff",
+        fontSize: 14,
+        textAlign: "center",
+        marginTop: 10,
+    },
+
+    playlistContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginTop: 20,
+    },
+
+    albumImage: {
+        width: 100,
+        height: 100,
+        borderRadius: 8,
+        resizeMode: 'cover',
+    },
+
 });
