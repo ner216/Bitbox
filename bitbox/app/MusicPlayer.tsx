@@ -69,15 +69,21 @@ export default function MusicScreen() {
         isSeeking.current = false;
     };
 
-    if (!song) {
-        return <Text style={{ color: 'white', textAlign: 'center', marginTop: 40 }}>Loading song...</Text>;
-    }
 
     return (
         <View style={styles.container}>
-            <Image source={{ uri: song.albumArt }} style={styles.albumArt} />
-            <Text style={styles.title}>{song.title}</Text>
-            <Text style={styles.artist}>{song.artist}</Text>
+            <Image
+                source={
+                    song?.albumArt
+                        ? { uri: song.albumArt }
+                        : require('../assets/images/BitBox_Main_Logo.png') // or your default image
+                }
+                style={styles.albumArt}
+            />
+
+            <Text style={styles.title}>{song?.title || '...'}</Text>
+            <Text style={styles.artist}>{song?.artist || '...'}</Text>
+
 
             <View style={styles.timeRow}>
                 <Text style={styles.timestamp}>{formatTime(position)}</Text>
@@ -107,6 +113,7 @@ export default function MusicScreen() {
                     style={({ pressed }) => [
                         styles.controlButton,
                         pressed && styles.pressedButton,
+                        !sound && { opacity: 0.5 },
                     ]}
                 >
                     <Text style={styles.controlSymbol}>{isPlaying ? '⏸' : '▶'}</Text>
