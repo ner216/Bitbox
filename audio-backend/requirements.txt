@@ -1,2 +1,4 @@
-# This file will be generated in the future by `pip freeze`.
-# This file contains python modules and versions for pip to install.
+mutagen==1.47.0
+psycopg==3.2.9
+psycopg2-binary==2.9.10
+typing_extensions==4.14.0
