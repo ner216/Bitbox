@@ -10,15 +10,7 @@ const playlistCovers = [
     "https://yt3.googleusercontent.com/TzxKREFGZv5Y5gC6Xfn6tBmZaxvH5drZkb85nlsOGz8ZS7JP5cH9Eq7RojqzMeR4lEP8X31VdA=s160-c-k-c0x00ffffff-no-rj",
     "https://yt3.googleusercontent.com/ytc/AIdro_loWQXLsqV3P69g6rJcCH-pddw2GiF7HvoMWXuLOsRLLw=s160-c-k-c0x00ffffff-no-rj"
 ]
-
 export default function Home() {
-    // Here are some playlist names we making different one to test for now
-    // const [playlists, setPlaylists] = useState([
-    //     { id: "1", name: "My Favorites", cover: playlistCovers[0] },
-    //     { id: "2", name: "Workout Beats", cover: playlistCovers[1] },
-    //     { id: "3", name: "Chill Vibes", cover: playlistCovers[2] },
-    //     { id: "4", name: "Party Time", cover: playlistCovers[3] }
-    // ]);
     // These are for the feature one
     const [featured, setFeatured] = useState([
         { id: "a", name: "Top Hits", cover: playlistCovers[4] },
@@ -26,41 +18,9 @@ export default function Home() {
         { id: "c", name: "Release", cover: playlistCovers[1] }
     ]);
 
-    // This is to delete the playlist you don't want
-    // const handleDelete = (id: string) => {
-    //     setPlaylists(playlists.filter(pl => pl.id !== id));
-    // };
-
-    // Well this is to add the playlist, maybe thinking to change name as well but for now default will be
-    // New Playlist with the id number
-    // const handleAddPlaylist = () => {
-    //     const newIdNum = playlists.length + 1;
-    //     setPlaylists([
-    //         ...playlists,
-    //         {
-    //             id: newIdNum.toString(),
-    //             name: `New Playlist ${newIdNum}`,
-    //             cover: playlistCovers[newIdNum % playlistCovers.length]
-    //         }
-    //     ]);
-    //
-    // };
     type Playlist = { id: string; name: string; cover: string };
     const [playlists, setPlaylists] = useState<Playlist[]>([]);
 
-    //When back end ready
-    // useEffect(() => {
-    //     const fetchPlaylists = async () => {
-    //         try {
-    //             const response = await fetch("https://your-backend-api.com/playlists");
-    //             const data = await response.json();
-    //             setPlaylists(data); // Set the fetched playlists
-    //         } catch (error) {
-    //             console.error("Error fetching playlists:", error);
-    //         }
-    //     };
-    //     fetchPlaylists();
-    // }, );
     useEffect(() => {
         const fetchPlaylists = async () => {
             try {
@@ -73,20 +33,8 @@ export default function Home() {
         };
 
         fetchPlaylists();
-    }, []);
+    }, [playlists]);
 
-
-    //when backend ready
-    // const handleDelete = async (id: string) => {
-    //     try {
-    //         await fetch(`https://your-backend-api.com/playlists/${id}`, {
-    //             method: "DELETE",
-    //         });
-    //         setPlaylists(playlists.filter(pl => pl.id !== id)); // Remove locally after backend confirms
-    //     } catch (error) {
-    //         console.error("Error deleting playlist:", error);
-    //     }
-    // };
     const handleDelete = async (id: string) => {
         try {
             const response = await fetch(`http://localhost:3000/playlists/${id}`, {
@@ -103,30 +51,6 @@ export default function Home() {
             console.error("Error deleting playlist:", error);
         }
     };
-
-    //When backend ready
-    // const handleAddPlaylist = async () => {
-    //     const newIdNum = playlists.length + 1;
-    //     const newPlaylist = {
-    //         id: newIdNum.toString(),
-    //         name: `New Playlist ${newIdNum}`,
-    //         cover: playlistCovers[newIdNum % playlistCovers.length],
-    //     };
-    //
-    //     try {
-    //         const response = await fetch("https://your-backend-api.com/playlists", {
-    //             method: "POST",
-    //             headers: { "Content-Type": "application/json" },
-    //             body: JSON.stringify(newPlaylist),
-    //         });
-    //
-    //         if (!response.ok) throw new Error("Failed to add playlist");
-    //
-    //         setPlaylists([...playlists, newPlaylist]); // Update frontend if backend succeeds
-    //     } catch (error) {
-    //         console.error("Error adding playlist:", error);
-    //     }
-    // };
     const handleAddPlaylist = async () => {
         const newPlaylist = {
             name: `New Playlist ${playlists.length + 1}`,
@@ -155,11 +79,11 @@ export default function Home() {
                 <Text style={styles.greeting}>Welcome to Bitbox!</Text>
                 {/*This is for the account button which would go back to the account page but still
                 waiting for it */}
-                <Link href={"/login"} asChild>
+                <Link href={"/AccountScreen"}>
                     <TouchableOpacity style={styles.accountButton}>
                         <Text style={styles.accountIcon}>👤</Text>
                     </TouchableOpacity>
-                </Link>
+                     </Link>
             </View>
 
             {/* This is  Featured Playlists */}
@@ -178,7 +102,6 @@ export default function Home() {
             {/* The user playlist that they can scroll through. Here FlatList use because the user
              can add playlist which would be a lot so Flatlist would render item when they about to
              appear and remove them when they out of screen to save processing time*/}
-
             <Text style={styles.sectionTitle}>Your Playlists</Text>
             <FlatList
                 data={playlists}
@@ -191,8 +114,7 @@ export default function Home() {
                     <Link href={{
                         pathname: "/playlist/[playlistID]",
                         params: { playlistID: item.id }
-                    }}
-                          asChild>
+                    }} asChild>
                         <TouchableOpacity style={styles.playlistRow} activeOpacity={0.7}>
                             <Image source={{ uri: item.cover }} style={styles.playlistImg} />
                             <Text style={styles.playlistName}>{item.name}</Text>
@@ -213,7 +135,6 @@ export default function Home() {
                 ListEmptyComponent={<Text style={styles.empty}>No playlists yet.</Text>}
             />
 
-
             {/*To make the new playlist*/}
             <TouchableOpacity style={styles.addButton} onPress={handleAddPlaylist}>
                 <Text style={styles.addButtonText}>+ Create New Playlist</Text>
@@ -221,7 +142,7 @@ export default function Home() {
 
             {/* Searching for music but waiting for the backend */}
             <View style={styles.bottomRow}>
-                <Link href={"/login"} asChild>
+                <Link href={"/SearchScreen"} asChild>
                     <TouchableOpacity style={styles.bottomNavButton}>
                         <Text style={styles.bottomNavText}>🔍 Search</Text>
                     </TouchableOpacity>
@@ -383,3 +304,76 @@ const styles = StyleSheet.create({
         padding: 10,
     },
 });
+// Here are some playlist names we making different one to test for now
+// const [playlists, setPlaylists] = useState([
+//     { id: "1", name: "My Favorites", cover: playlistCovers[0] },
+//     { id: "2", name: "Workout Beats", cover: playlistCovers[1] },
+//     { id: "3", name: "Chill Vibes", cover: playlistCovers[2] },
+//     { id: "4", name: "Party Time", cover: playlistCovers[3] }
+// ]);
+// This is to delete the playlist you don't want
+// const handleDelete = (id: string) => {
+//     setPlaylists(playlists.filter(pl => pl.id !== id));
+// };
+
+// Well this is to add the playlist, maybe thinking to change name as well but for now default will be
+// New Playlist with the id number
+// const handleAddPlaylist = () => {
+//     const newIdNum = playlists.length + 1;
+//     setPlaylists([
+//         ...playlists,
+//         {
+//             id: newIdNum.toString(),
+//             name: `New Playlist ${newIdNum}`,
+//             cover: playlistCovers[newIdNum % playlistCovers.length]
+//         }
+//     ]);
+//
+// };
+//When back end ready
+// useEffect(() => {
+//     const fetchPlaylists = async () => {
+//         try {
+//             const response = await fetch("https://your-backend-api.com/playlists");
+//             const data = await response.json();
+//             setPlaylists(data); // Set the fetched playlists
+//         } catch (error) {
+//             console.error("Error fetching playlists:", error);
+//         }
+//     };
+//     fetchPlaylists();
+// }, );
+//when backend ready
+// const handleDelete = async (id: string) => {
+//     try {
+//         await fetch(`https://your-backend-api.com/playlists/${id}`, {
+//             method: "DELETE",
+//         });
+//         setPlaylists(playlists.filter(pl => pl.id !== id)); // Remove locally after backend confirms
+//     } catch (error) {
+//         console.error("Error deleting playlist:", error);
+//     }
+// };
+//When backend ready
+// const handleAddPlaylist = async () => {
+//     const newIdNum = playlists.length + 1;
+//     const newPlaylist = {
+//         id: newIdNum.toString(),
+//         name: `New Playlist ${newIdNum}`,
+//         cover: playlistCovers[newIdNum % playlistCovers.length],
+//     };
+//
+//     try {
+//         const response = await fetch("https://your-backend-api.com/playlists", {
+//             method: "POST",
+//             headers: { "Content-Type": "application/json" },
+//             body: JSON.stringify(newPlaylist),
+//         });
+//
+//         if (!response.ok) throw new Error("Failed to add playlist");
+//
+//         setPlaylists([...playlists, newPlaylist]); // Update frontend if backend succeeds
+//     } catch (error) {
+//         console.error("Error adding playlist:", error);
+//     }
+// };

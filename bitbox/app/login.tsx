@@ -15,9 +15,6 @@ export default function Index() {
     const { width} = Dimensions.get("window");
     // Making a function to go to home page and using this router to do history stack which is to save
     // the screen where the user was visited so it would go back to the page they last visted
-    // const handleLogin = () => {
-    //     router.replace("/home");
-    // };
     const handleLogin = async () => {
         try {
             // const response = await axios.post("https://your-backend-url.com/login", {
@@ -38,6 +35,7 @@ export default function Index() {
             setErrorMessage("Network error. Please check your connection.");
         }
     };
+
     const translateX = useSharedValue(100); // Starts far left
 
     React.useEffect(() => {
@@ -187,3 +185,31 @@ const styles = StyleSheet.create({
         opacity: 0.8,
     },
 });
+
+// const handleLogin = () => {
+//     router.replace("/home");
+// };
+// const handleLogin = async () => {
+//     try {
+//         const response = await axios.post("http://localhost:5000/login", {
+//             username,
+//             password,
+//         });
+//
+//         if (response.status === 200) {
+//             console.log("Login successful:", response.data);
+//             router.replace("/home"); // Navigate to home page
+//         } else {
+//             setErrorMessage(response.data.message || "Invalid credentials. Please try again.");
+//         }
+//     } catch (error: any) { // Explicitly define error type
+//         console.error("Login error:", error);
+//
+//         if (axios.isAxiosError(error)) {
+//             setErrorMessage(error.response?.data?.message || "Invalid credentials. Please try again.");
+//         } else {
+//             setErrorMessage("Network error. Please check your connection.");
+//         }
+//     }
+//
+// };

@@ -6,7 +6,7 @@ import React, { useEffect } from "react";
 export default function Intro() {
     const router = useRouter();
     useEffect(() => {
-        setTimeout(() => router.replace("/login"), 2000);
+        setTimeout(() => router.replace("/login"), 2001);
     }, );
 
     const windowWidth = Dimensions.get("window").width;
@@ -26,9 +26,6 @@ const styles = StyleSheet.create({
 });
 
 // backgroundColor: "#000"
-
-
-
 // const localSource = require("../assets/intro.mp4");
 // const player = useVideoPlayer(localSource, (player) =>{
 //     player.staysActiveInBackground = true;

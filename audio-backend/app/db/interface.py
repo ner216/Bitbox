@@ -1,8 +1,10 @@
 import psycopg2
 from psycopg2 import OperationalError
 from psycopg2.pool import SimpleConnectionPool
+
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3NoHeaderError, ID3
+
 import os
 import time
 import socket
@@ -13,6 +15,7 @@ DB_HOST = os.getenv("DB_HOST")
 DB_USER = os.getenv("DB_USER")
 DB_PASS = os.getenv("DB_PASSWORD")
 DB_PORT = os.getenv("DB_PORT")
+
 
 MUSIC_DIRECTORY = "app/db/.music/"
 
@@ -163,6 +166,7 @@ class db_interface(object):
             commit=True
         )
     
+
 
     def create_song(self, title:str, artist:str, genre:str, duration:int, audio_file_url:str):
         self.execute_query(

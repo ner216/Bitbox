@@ -23,7 +23,12 @@ export default function RootLayout() {
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
                  <Stack>
                      <Stack.Screen name="index" options={{ headerShown: false }} />
-                     <Stack.Screen name="login" />
+                     <Stack.Screen name="login" options={{ headerShown: false }}/>
+                     <Stack.Screen name="home" options={{ headerShown: false }} />
+                     <Stack.Screen name="register" options={{ headerShown: false }}/>
+                     <Stack.Screen name="playlist/[playlistID]" options={{ headerShown: false }} />
+                     <Stack.Screen name="accountscreen" options={{ headerShown: false }}/>
+
                  </Stack>
                  <StatusBar style="auto" />
         </ThemeProvider>
