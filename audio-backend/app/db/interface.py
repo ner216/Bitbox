@@ -1,6 +1,10 @@
 import psycopg2
 from psycopg2 import OperationalError
 from psycopg2.pool import SimpleConnectionPool
+
+from mutagen.mp3 import MP3
+from mutagen.id3 import ID3NoHeaderError, ID3
+
 import os
 import time
 import socket
@@ -11,6 +15,9 @@ DB_HOST = os.getenv("DB_HOST")
 DB_USER = os.getenv("DB_USER")
 DB_PASS = os.getenv("DB_PASSWORD")
 DB_PORT = os.getenv("DB_PORT")
+
+
+MUSIC_DIRECTORY = "app/db/.music/"
 
 # A function to pause execution untill the database is online
 def wait_for_db(timeout=int):
@@ -160,17 +167,18 @@ class db_interface(object):
         )
     
 
-    def create_song(self, title:str, artist:str, album:str, genre:str, duration:int, release_year:int, audio_file_url:str, cover_image_url:str):
+
+    def create_song(self, title:str, artist:str, genre:str, duration:int, audio_file_url:str):
         self.execute_query(
-            "INSERT INTO Songs (title,artist,album,genre,duration_seconds,release_year,audio_file_url,cover_image_url) VALUES (%s,%s,%s,%s,%d,%d,%s,%s)",
-            params=(title,artist,album,genre,duration,release_year,audio_file_url,cover_image_url),
+            "INSERT INTO Songs (title,artist,genre,duration_seconds,audio_file_url) VALUES (%s,%s,%s,%s,%s)",
+            params=(title,artist,genre,duration,audio_file_url),
             commit=True
         )
     
 
     def create_playlist(self, user_id:int, name:str, desc:str):
         self.execute_query(
-            "INSERT INTO Playlists (user_id, name, description) VALUES (%d,%s,%s)",
+            "INSERT INTO Playlists (user_id, name, description) VALUES (%s,%s,%s)",
             params=(user_id, name, desc),
             commit=True
         )
@@ -178,16 +186,16 @@ class db_interface(object):
 
     def create_playlist_song(self, playlist_id:int, song_id:int):
         self.execute_query(
-            "INSERT INTO PlaylistSongs (playlist_id, song_id) VALUES (%d,%d)",
+            "INSERT INTO PlaylistSongs (playlist_id, song_id) VALUES (%s,%s)",
             params=(playlist_id, song_id),
             commit=True
         )
     
 
-    # Methods for searching the database
+    # Methods for searching the database ----------------------------------------------------------------------------------
     def get_song_by_name(self, name:str) -> list:
         result = self.execute_query(
-            "SELECT * FROM Songs WHERE name = $s",
+            "SELECT * FROM Songs WHERE name = %s",
             params=(name),
             fetch_one=True
         )
@@ -197,7 +205,7 @@ class db_interface(object):
     
     def get_song_by_id(self, id:int) -> list:
         result = self.execute_query(
-            "SELECT * FROM Songs WHERE id = $d",
+            "SELECT * FROM Songs WHERE id = %s",
             params=(id),
             fetch_one=True
         )
@@ -207,7 +215,7 @@ class db_interface(object):
 
     def get_user_by_id(self, id:int) -> list:
         result = self.execute_query(
-            "SELECT * FROM Users WHERE id = $d",
+            "SELECT * FROM Users WHERE id = %s",
             params=(id),
             fetch_one=True
         )
@@ -217,7 +225,7 @@ class db_interface(object):
     
     def get_playlist_by_user_id(self, id:int) -> list:
         result = self.execute_query(
-            "SELECT * FROM Playlists WHERE user_id = $d",
+            "SELECT * FROM Playlists WHERE user_id = %s",
             params=(id),
             fetch_all=True
         )
@@ -227,18 +235,65 @@ class db_interface(object):
 
     def get_playlist_by_id(self, id:int) -> list:
         result = self.execute_query(
-                "SELECT * FROM Playlists WHERE id = $d",
+                "SELECT * FROM Playlists WHERE id = %s",
                 params=(id),
                 fetch_one=True
             )
 
         return result
     
+    
     def get_playlistSongs_by_playlist_id(self, id:int):
         result = self.execute_query(
-                "SELECT * FROM PlaylistSongs WHERE playlist_id = $d",
+                "SELECT * FROM PlaylistSongs WHERE playlist_id = %s",
                 params=(id),
                 fetch_all=True
             )
 
         return result
+    
+    
+    # Methods for scanning music into the database ---------------------------------------------------------------------------------
+    def read_metadata(self, music_file_path:str) -> dict:
+        metadata = {
+            "title": "N/A",
+            "artist": "N/A",
+            "genre": "N/A",
+            "duration_sec": 0
+        }
+
+        try:
+            audio = MP3(music_file_path, ID3=ID3)
+            if audio.tags:
+                if 'TIT2' in audio.tags:
+                    metadata["title"] = str(audio.tags["TIT2"])
+                if 'TPE1' in audio.tags:
+                    metadata["artist"] = str(audio.tags["TPE1"])
+                if "TCON" in audio.tags:
+                    metadata["genre"] = str(audio.tags["TCON"])
+                
+            if audio.info:
+                metadata["duration_sec"] = audio.info.length
+        except ID3NoHeaderError as e:
+            print(f"[ERROR] No ID3 header found in '{music_file_path}' [read_metadata]\n Err: {e}")
+            return metadata
+        except FileNotFoundError as e:
+            print(f"[ERROR] Music file at '{music_file_path}' not found. [read_metadata]\n Err: {e}")
+            return metadata
+        except Exception as e:
+            print(f"[ERROR] Unable to read/find metadata. [read_metadata]\n Err: {e}")
+            return metadata
+        finally:
+            return metadata
+        
+
+    def scan_music_files(self):
+        # Create interface object
+        database = db_interface()
+
+        for song in os.listdir(MUSIC_DIRECTORY):
+            if ".mp3" in song:
+                file_url = f"app/db/.music/{song}"
+                metadata = self.read_metadata(MUSIC_DIRECTORY + song)
+                database.create_song(metadata["title"], metadata["artist"], metadata["genre"], int(metadata["duration_sec"]), file_url)
+            
