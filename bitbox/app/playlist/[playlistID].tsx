@@ -1,36 +1,76 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert } from "react-native";
-import { useLocalSearchParams, router } from "expo-router";
+import { useLocalSearchParams, router, Link } from "expo-router";
+
 
 // Just create data for demonstration, fetch by ID
-const playlistsData: { [key: string]: { name: string; songs: { id: string; title: string; artist: string }[] } } = {
-    "1": {
-        name: "My Favorites",
-        songs: [
-            { id: "a", title: "Song A", artist: "Artist 1" },
-            { id: "b", title: "Song B", artist: "Artist 2" },
-        ],
-    },
-    "2": {
-        name: "Workout Beats",
-        songs: [
-            { id: "c", title: "Song C", artist: "Artist 3" },
-            { id: "d", title: "Song D", artist: "Artist 4" },
-        ],
-    },
-};
+// const playlistsData: { [key: string]: { name: string; songs: { id: string; title: string; artist: string }[] } } = {
+//     "1": {
+//         name: "My Favorites",
+//         songs: [
+//             { id: "a", title: "Song A", artist: "Artist 1" },
+//             { id: "b", title: "Song B", artist: "Artist 2" },
+//         ],
+//     },
+//     "2": {
+//         name: "Workout Beats",
+//         songs: [
+//             { id: "c", title: "Song C", artist: "Artist 3" },
+//             { id: "d", title: "Song D", artist: "Artist 4" },
+//         ],
+//     },
+// };
 
 
 export default function PlaylistPage() {
-    const { playlistId } = useLocalSearchParams();
-    const playlist = playlistsData[playlistId as string] || { name: "Unknown Playlist", songs: [] };
+    const { playlistID } = useLocalSearchParams();
+    // const playlist = playlistsData[playlistId as string] || { name: "Unknown Playlist", songs: [] };
+    // const [songs, setSongs] = useState(playlist.songs);
 
-    const [songs, setSongs] = useState(playlist.songs);
+    const [playlist, setPlaylist] = useState<{ name: string; songs: { id: string; title: string; artist: string }[] } | null>(null);
+    const [songs, setSongs] = useState<{ id: string; title: string; artist: string }[]>([]);
+
+    useEffect(() => {
+        const fetchPlaylist = async () => {
+            try {
+                const response = await fetch(`http://localhost:3000/playlists/${playlistID}`);
+                if (!response.ok) throw new Error("Failed to fetch playlist");
+
+                const data = await response.json();
+                console.log("Fetched Playlist Data:", data); // Log fetched data
+                setPlaylist(data);
+                setSongs(data.songs || []); // Ensure songs exist
+            } catch (error) {
+                console.error("Error fetching playlist:", error);
+            }
+        };
+
+        if (playlistID) fetchPlaylist();
+    }, [playlistID]);
+
 
     // This is to delete a song
-    const handleRemoveSong = (id: string) => {
-        setSongs(songs.filter(song => song.id !== id));
+    // const handleRemoveSong = (id: string) => {
+    //     setSongs(songs.filter(song => song.id !== id));
+    // };
+    const handleRemoveSong = async (id: string) => {
+        try {
+            const response = await fetch(`http://localhost:3000/playlists/${playlistID}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ songs: songs.filter(song => song.id !== id) })
+            });
+
+
+            if (!response.ok) throw new Error("Failed to remove song");
+
+            const updatedPlaylist = await response.json();
+            setSongs(updatedPlaylist.songs); // Sync songs with backend
+        } catch (error) {
+            console.error("Error removing song:", error);
+        }
     };
+
 
     // This is well to find similar music (In the description)
     const handleFindSimilar = (title: string) => {
@@ -38,13 +78,38 @@ export default function PlaylistPage() {
     };
 
     // Add new song
-    const handleAddSong = () => {
-        const newId = (songs.length + 1).toString();
-        setSongs([
-            ...songs,
-            { id: newId, title: `New Song ${newId}`, artist: "Unknown Artist" },
-        ]);
+    // const handleAddSong = () => {
+    //     const newId = (songs.length + 1).toString();
+    //     setSongs([
+    //         ...songs,
+    //         { id: newId, title: `New Song ${newId}`, artist: "Unknown Artist" },
+    //     ]);
+    // };
+    const handleAddSong = async () => {
+        if (!playlist) return; // Prevent errors if playlist is null
+
+        const newSong = { id: `${songs.length + 1}`, title: `New Song ${songs.length + 1}`, artist: "Unknown Artist" };
+
+        try {
+            const updatedSongs = [...songs, newSong];
+
+            const response = await fetch(`http://localhost:3000/playlists/${playlistID}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ songs: updatedSongs }) // Update songs array in backend
+            });
+
+            const responseData = await response.json();
+            console.log("PATCH Response:", responseData); // Log response from json-server
+
+            if (!response.ok) throw new Error("Failed to add song");
+
+            setSongs(updatedSongs); // Update UI after backend confirms
+        } catch (error) {
+            console.error("Error adding song:", error);
+        }
     };
+
 
     // Play playlist
     const handlePlay = () => {
@@ -61,10 +126,18 @@ export default function PlaylistPage() {
     return (
         <View style={styles.container}>
             {/*Showing the playlist name*/}
-            <Text style={styles.title}>{playlist.name}</Text>
-            <Text style={styles.songCount}>
-                {songs.length} {songs.length === 1 ? "song" : "songs"}
-            </Text>
+            {/*<Text style={styles.title}>{playlist.name}</Text>*/}
+            {playlist ? (
+                <>
+                    <Text style={styles.title}>{playlist.name}</Text>
+                    <Text style={styles.songCount}>
+                        {songs.length} {songs.length === 1 ? "song" : "songs"}
+                    </Text>
+                </>
+            ) : (
+                <Text style={styles.title}>Loading...</Text>
+            )}
+
             {/*These are the feature buttons for the playlist page*/}
             <View style={styles.actionRow}>
                 <TouchableOpacity style={styles.playButton} onPress={handlePlay}>
@@ -84,10 +157,17 @@ export default function PlaylistPage() {
                 contentContainerStyle={styles.songList}
                 renderItem={({ item }) => (
                     <View style={styles.songRow}>
-                        <View>
+                        {/*<View>*/}
+                        <Link href={{
+                            pathname: "/MusicPlayer",
+                            params: { playlistID: item.id }
+                        }} >
+                            <View>
                             <Text style={styles.songTitle}>{item.title}</Text>
                             <Text style={styles.songArtist}>{item.artist}</Text>
-                        </View>
+                            </View>
+                            </Link>
+                        {/*</View>*/}
                         <View style={styles.songActions}>
                             <TouchableOpacity
                                 style={styles.songActionButton}
@@ -108,7 +188,6 @@ export default function PlaylistPage() {
                     <Text style={styles.emptyMsg}>No songs in this playlist. Add some!</Text>
                 }
             />
-
             {/* The back button well to go back to home page */}
             <TouchableOpacity
                 style={styles.backButton}
@@ -122,7 +201,7 @@ export default function PlaylistPage() {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: "#0000ff", padding: 18, paddingTop: 40 },
-    title: { color: "#fff", fontSize: 26, fontWeight: "bold", marginBottom: 2 },
+    title: { color: "#fff", fontSize: 26, fontWeight: "bold", marginBottom: 2, paddingTop: 40, },
     songCount: { color: "#b0b0ff", fontSize: 16, marginBottom: 18 },
     actionRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 18, alignItems: "center" },
     playButton: { backgroundColor: "#00cc44", paddingVertical: 10, paddingHorizontal: 26, borderRadius: 8, marginRight: 10 },
@@ -138,6 +217,6 @@ const styles = StyleSheet.create({
     songActionButton: { backgroundColor: "#00cc44", paddingVertical: 6, paddingHorizontal: 12, borderRadius: 6, marginLeft: 8 },
     songActionText: { color: "#fff", fontWeight: "bold", fontSize: 13 },
     emptyMsg: { color: "#fff", textAlign: "center", marginTop: 30, fontSize: 16 },
-    backButton: { position: "absolute", left: 16, top: 42, backgroundColor: "#2222ff", padding: 8, borderRadius: 8 },
+    backButton: { position: "absolute", left: 16, top: 40, backgroundColor: "#2222ff", padding: 8, borderRadius: 8 },
     backButtonText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
 });
