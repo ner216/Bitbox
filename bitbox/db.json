@@ -1,0 +1,26 @@
+{
+  "playlists": [
+    {
+      "id": "41fd",
+      "name": "New Playlist 1",
+      "cover": "https://celebmix.com/wp-content/uploads/2023/04/alan-walker-takes-it-back-to-the-beginning-with-his-new-single-dreamer-which-pays-homage-to-his-breakthrough-hits-faded-and-alone-01-scaled.jpg",
+      "songs": [
+        {
+          "id": "1",
+          "title": "New Song 1",
+          "artist": "Unknown Artist"
+        },
+        {
+          "id": "2",
+          "title": "New Song 2",
+          "artist": "Unknown Artist"
+        },
+        {
+          "id": "3",
+          "title": "New Song 3",
+          "artist": "Unknown Artist"
+        }
+      ]
+    }
+  ]
+}
