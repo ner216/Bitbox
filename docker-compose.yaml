@@ -31,3 +31,11 @@ services:
     #command: "python main.py"  # Add commands to be run at container startup
     depends_on:
       - db
+  
+  frontend:
+    build: ./bitbox/ # Path to front end dockerfile
+    container_name: "react_frontend"
+    ports:
+      - "8081:8081"
+    depends_on:
+      - backend
