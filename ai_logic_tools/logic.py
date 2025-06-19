@@ -101,11 +101,3 @@ class logic_tools(object):
         except Exception as e:
             print(f"Error extracting from {audio_path} [logic_tools::extract_vggish_embedding]: {e}")
             return None
-
-
-
-#this is for test only
-#if __name__ == "__main__":
-    #query = "01 - Barry Manilow - Could It Be Magic (1993 Version).wav"  # replace with an actual song key from your JSON
-    #result = get_most_similar_song(query)
-    #print(f"Most similar song to '{query}': {result}")
