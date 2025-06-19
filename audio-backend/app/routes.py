@@ -1,6 +1,6 @@
 # app/routes.py
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_from_directory, abort
 from db.interface import db_interface  # Your DB interface class
 
 api = Blueprint('api', __name__)  # This stays global
@@ -35,12 +35,6 @@ class APIRoutes:
         def get_playlists(user_id):
             playlists = self.db.get_playlist_by_user_id(user_id)
             return jsonify(playlists), 200
-
-        # 4. Get songs by playlist ID
-        @api.route('/playlists/<int:playlist_id>/songs', methods=['GET'])
-        def get_song_ids(playlist_id):
-            songs = self.db.get_playlistSongs_by_playlist_id(playlist_id)
-            return jsonify(songs), 200
 
         # 5. Create user
         @api.route('/users', methods=['POST'])
@@ -94,4 +88,27 @@ class APIRoutes:
             if success:
                 return jsonify({'message': f'Playlist "{playlist_name}" created successfully for user {user_id}'}), 201
             return jsonify({'error': f'Failed to create playlist "{playlist_name}" for user {user_id}'}), 400
+        
+
+        @api.route('/music/<filename>')
+        def serve_music(filename):
+            try:
+                return send_from_directory("app/db/music/", filename, as_attachment=False)
+            except FileNotFoundError:
+                print("[ERROR] Unable to find music file! [routes::serve_music]")
+                return
+            except Exception as e:
+                print(f"[ERROR] Unable to send music file! [routes::serve_music]\n Err: {e}")
+                return
+            
+        
+        @api.route('/playlist/<int:playlist_id>/songs', methods=['GET'])
+        def get_playlist_songs_route(playlist_id):
+            # Access the DatabaseInterface instance from g
+            songs = self.db.get_songs_in_playlist(playlist_id)
+            if songs:
+                return jsonify(songs), 200
+            else:
+                return jsonify({"message": f"No songs found for playlist ID {playlist_id} or playlist does not exist."}), 404
+
 
