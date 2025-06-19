@@ -1,1 +1,0 @@
-Place music library here. Do not place songs in sub-folders.

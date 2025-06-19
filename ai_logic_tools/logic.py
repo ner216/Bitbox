@@ -11,12 +11,21 @@ import vggish_scripts.vggish_params as vggish_params
 import vggish_scripts.vggish_postprocess as vggish_postprocess
 import vggish_scripts.vggish_slim as vggish_slim
 
+
+# Get the directory where myscript.py is located
+current_dir = os.path.dirname(__file__)
+# Build the relative path to the YAML file
+db_dir_path = os.path.join(current_dir, '..', 'audio-backend', 'app', 'db')
+# Normalize the path
+db_dir_path = os.path.abspath(db_dir_path)
+
+
 class logic_tools(object):
     def __init__(self):
         self.vectors_file = "models/vggish/vggish_vectors.json"
         self.checkpoint_path = "models/vggish/vggish_model.ckpt"
         self.pca_params_path = "models/vggish/vggish_pca_params.npz"
-        self.audio_dir = "music"
+        self.audio_dir = f"{db_dir_path}/music"
 
 
     

@@ -8,6 +8,7 @@ from mutagen.id3 import ID3NoHeaderError, ID3
 import os
 import time
 import socket
+import yaml
 
 # Get envirnment variables from linux container
 DB_NAME = os.getenv("DB_NAME")
@@ -153,7 +154,7 @@ def read_metadata(music_file_path:str) -> dict:
 
 def scan_music_files():
     total_songs_loaded = 0
-    sql_query = "INSERT INTO Songs (title,artist,genre,duration_seconds,audio_file_url) VALUES (%s,%s,%s,%s,%s);"
+    sql_query = "INSERT INTO Songs (title,artist,genre,duration_seconds,audio_file_url,similar_song_url) VALUES (%s,%s,%s,%s,%s,%s);"
 
     # Get connection
     conn = psycopg2.connect(
@@ -166,12 +167,16 @@ def scan_music_files():
     conn.autocommit = True
     curr = conn.cursor()
 
+    # Get song match dictionary
+    with open('app/db/matched_songs.yaml', 'r') as file:
+        song_dictionary = yaml.safe_load(file)
+
     for song in os.listdir(MUSIC_DIRECTORY):
         if ".mp3" in song:
             file_url = f"app/db/music/{song}"
             metadata = read_metadata(MUSIC_DIRECTORY + song)
             # Create tuple of parameters
-            params = (metadata["title"], metadata["artist"], metadata["genre"], int(metadata["duration_sec"]), file_url)
+            params = (metadata["title"], metadata["artist"], metadata["genre"], int(metadata["duration_sec"]), file_url, song_dictionary[song])
             try:
                 curr.execute(sql_query, params)
                 total_songs_loaded += 1
@@ -249,11 +254,11 @@ class db_interface(object):
     
 
 
-    def create_song(self, title:str, artist:str, genre:str, duration:int, audio_file_url:str) -> bool:
+    def create_song(self, title:str, artist:str, genre:str, duration:int, audio_file_url:str, similar_song_url:str) -> bool:
         try:
             self.execute_query(
-                "INSERT INTO Songs (title,artist,genre,duration_seconds,audio_file_url) VALUES (%s,%s,%s,%s,%s);",
-                params=(title,artist,genre,duration,audio_file_url),
+                "INSERT INTO Songs (title,artist,genre,duration_seconds,audio_file_url,similar_song_url) VALUES (%s,%s,%s,%s,%s,%s);",
+                params=(title,artist,genre,duration,audio_file_url,similar_song_url),
                 commit=True
             )
             return True
