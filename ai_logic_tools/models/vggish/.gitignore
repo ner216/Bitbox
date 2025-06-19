@@ -1,0 +1,6 @@
+# Ignore vector file
+vggish_vectors.json
+# ignore pycache
+__pycache__/
+# Ignore vggish checkpoint
+vggish_model.ckpt
