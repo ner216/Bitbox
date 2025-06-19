@@ -76,11 +76,7 @@ export default function MusicScreen() {
     return (
         <View style={styles.container}>
             <Image
-                source={
-                    song?.albumArt
-                        ? { uri: song.albumArt }
-                        : require('../assets/BitBox_Main_Logo-removebg-preview.png') // or your default image
-                }
+                source={require('../assets/BitBox_Main_Logo-removebg-preview.png')} // or your default image
                 style={styles.albumArt}
             />
 
@@ -125,6 +121,11 @@ export default function MusicScreen() {
                 <Pressable style={styles.controlButton}>
                     <Text style={styles.controlSymbol}>⏭</Text>
                 </Pressable>
+
+                <Pressable style={styles.controlButton}>
+                    <Text style={styles.controlSymbol}>{"<"}</Text>
+                </Pressable>
+
             </View>
             <TouchableOpacity
                 style={styles.backButton}
