@@ -306,6 +306,19 @@ class db_interface(object):
         except Exception as e:
             print(f"[ERROR] Unable find song [db_interface::get_song_by_name]\n Err: {e}")
             return []
+        
+        
+    def get_song_by_url(self, file_url:str) -> list:
+        try:
+            result = self.execute_query(
+                "SELECT * FROM Songs WHERE audio_file_url = %s;",
+                params=(file_url,),
+                fetch_one=True
+            )
+            return result
+        except Exception as e:
+            print(f"[ERROR] Unable find song [db_interface::get_song_by_url]\n Err: {e}")
+            return []
     
     
     def get_song_by_id(self, id:int) -> list:
