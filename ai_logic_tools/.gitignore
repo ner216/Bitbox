@@ -1,0 +1,6 @@
+# Ignore python version file
+.python-version
+# Ignore pycache
+__pycache__/
+# Ignore venv
+.venv

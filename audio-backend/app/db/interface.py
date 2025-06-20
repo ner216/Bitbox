@@ -1,6 +1,7 @@
 import psycopg2
-from psycopg2 import OperationalError
+from psycopg2 import OperationalError, Error
 from psycopg2.pool import SimpleConnectionPool
+from psycopg2.extras import RealDictCursor
 
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3NoHeaderError, ID3
@@ -8,6 +9,7 @@ from mutagen.id3 import ID3NoHeaderError, ID3
 import os
 import time
 import socket
+import yaml
 
 # Get envirnment variables from linux container
 DB_NAME = os.getenv("DB_NAME")
@@ -153,7 +155,7 @@ def read_metadata(music_file_path:str) -> dict:
 
 def scan_music_files():
     total_songs_loaded = 0
-    sql_query = "INSERT INTO Songs (title,artist,genre,duration_seconds,audio_file_url) VALUES (%s,%s,%s,%s,%s);"
+    sql_query = "INSERT INTO Songs (title,artist,genre,duration_seconds,audio_file_url,similar_song_url) VALUES (%s,%s,%s,%s,%s,%s);"
 
     # Get connection
     conn = psycopg2.connect(
@@ -166,12 +168,16 @@ def scan_music_files():
     conn.autocommit = True
     curr = conn.cursor()
 
+    # Get song match dictionary
+    with open('app/db/matched_songs.yaml', 'r') as file:
+        song_dictionary = yaml.safe_load(file)
+
     for song in os.listdir(MUSIC_DIRECTORY):
         if ".mp3" in song:
             file_url = f"app/db/music/{song}"
             metadata = read_metadata(MUSIC_DIRECTORY + song)
             # Create tuple of parameters
-            params = (metadata["title"], metadata["artist"], metadata["genre"], int(metadata["duration_sec"]), file_url)
+            params = (metadata["title"], metadata["artist"], metadata["genre"], int(metadata["duration_sec"]), file_url, song_dictionary[song])
             try:
                 curr.execute(sql_query, params)
                 total_songs_loaded += 1
@@ -249,11 +255,11 @@ class db_interface(object):
     
 
 
-    def create_song(self, title:str, artist:str, genre:str, duration:int, audio_file_url:str) -> bool:
+    def create_song(self, title:str, artist:str, genre:str, duration:int, audio_file_url:str, similar_song_url:str) -> bool:
         try:
             self.execute_query(
-                "INSERT INTO Songs (title,artist,genre,duration_seconds,audio_file_url) VALUES (%s,%s,%s,%s,%s);",
-                params=(title,artist,genre,duration,audio_file_url),
+                "INSERT INTO Songs (title,artist,genre,duration_seconds,audio_file_url,similar_song_url) VALUES (%s,%s,%s,%s,%s,%s);",
+                params=(title,artist,genre,duration,audio_file_url,similar_song_url),
                 commit=True
             )
             return True
@@ -367,4 +373,50 @@ class db_interface(object):
         except Exception as e:
             print(f"[ERROR] Unable find playlist songs [db_interface::get_playlistSongs_by_playlist_id]\n Err: {e}")
             return []
+        
+    
+    # Return a list of songs in a given playlist using the playlist id.
+    def get_songs_in_playlist(self, playlist_id) -> list:
+        """
+        Retrieves all song entries from a given playlist ID.
+
+        Args:
+            playlist_id (int): The ID of the playlist.
+
+        Returns:
+            list: A list of dictionaries, where each dictionary represents a song.
+                  Returns an empty list if no songs are found or an error occurs.
+        """
+        songs = []
+        conn = self.pool.get_conn()
+        if not conn:
+            return songs # Return empty list if no connection
+
+        try:
+            # Use RealDictCursor to get results as dictionaries (column_name: value)
+            with conn.cursor(cursor_factory=RealDictCursor) as curr:
+                query = """
+                SELECT
+                    s.id, s.title, s.artist, s.album, s.duration, s.file_path -- Specify columns you need
+                    -- Add any other columns from the 'songs' table you want to retrieve
+                FROM
+                    songs s
+                JOIN
+                    playlist_songs ps ON s.id = ps.song_id
+                JOIN
+                    playlist p ON ps.playlist_id = p.id
+                WHERE
+                    p.id = %s;
+                """
+                curr.execute(query, (playlist_id,)) # Pass the playlist_id as a tuple
+                songs = curr.fetchall() # Fetch all matching rows
+        except Error as e:
+            print(f"Error executing query to get songs for playlist {playlist_id}: {e}")
+        finally:
+            if curr:
+                curr.close()
+            if conn:
+                self.pool.return_conn(conn)
+
+        return songs
     
