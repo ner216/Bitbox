@@ -12,7 +12,7 @@ CREATE TABLE Songs (
     genre VARCHAR(100),
     duration_seconds INTEGER NOT NULL,
     audio_file_url TEXT NOT NULL UNIQUE,
-    similar_song_id SERIAL REFERENCES Songs(song_id) ON DELETE CASCADE
+    similar_song_url TEXT NOT NULL
 );
 
 CREATE INDEX idx_songs_title ON Songs (title);

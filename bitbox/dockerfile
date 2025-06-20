@@ -1,0 +1,26 @@
+FROM node:20-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Copy package.json and package-lock.json first
+COPY package.json ./
+COPY package-lock.json ./
+
+# Install dependancies automatically while also avoiding peer dependency conflicts
+#RUN npm install --legacy-peer-deps
+
+# Version specific dependancy command recommended by npx
+RUN npm install expo@53.0.12 expo-av@15.1.6 expo-blur@14.1.5 expo-image@2.3.0 expo-linear-gradient@14.1.5 expo-router@5.1.0 expo-splash-screen@0.30.9 expo-symbols@0.4.5 expo-system-ui@5.0.9 expo-video@2.2.2 expo-web-browser@14.2.0 react-native@0.79.4 react-native-screens@4.11.1
+
+# Copy all application code
+COPY . .
+
+# Expose port 80
+EXPOSE 8081
+
+# Run and build react app
+CMD ["npx", "expo", "start"]
+
+
+
