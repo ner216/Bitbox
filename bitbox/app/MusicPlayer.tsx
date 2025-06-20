@@ -76,7 +76,7 @@ export default function MusicScreen() {
     return (
         <View style={styles.container}>
             <Image
-                source={require('../assets/BitBox_Main_Logo-removebg-preview.png')} // or your default image
+                source={require('../assets/BitBox_Main_Logo-removebg-preview.png')}
                 style={styles.albumArt}
             />
 
