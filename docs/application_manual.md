@@ -6,7 +6,7 @@ Thank you for choosing Bitbox! This document provides a visual walkthrough of th
 
 ## **Login Page**
 
-![Login Page](PASTE URL HERE)
+![Login Page](Login_Page.png)
 
 - If you have already made an account, you can enter your username and password in the boxes labeled as such.
 - Once you have entered the correct information, click the "Log In" button to sign in.
@@ -16,7 +16,7 @@ Thank you for choosing Bitbox! This document provides a visual walkthrough of th
 
 ## **Registration Page**
 
-![Registration Page](PASTE URL HERE)
+![Registration Page](Registration_Page.png)
 
 - When creating your account, fill out a username of your choice. Be creative! But make sure you write it down so you don’t forget it.
 - In the "Email" box, please use your active email.
@@ -27,7 +27,7 @@ Thank you for choosing Bitbox! This document provides a visual walkthrough of th
 
 ## **Welcome Page**
 
-![Welcome Page](PASTE URL HERE)
+![Welcome Page](Welcome_Page.png)
 
 - The "Featured" section shows suggested playlists based on user activity.
 - "Your Playlists" is a collection of all the user's created playlists. Each playlist has the option to delete it using the red "Delete" button below the playlist.
@@ -39,7 +39,7 @@ Thank you for choosing Bitbox! This document provides a visual walkthrough of th
 
 ## **Account Details Page**
 
-![Account Details Page](PASTE URL HERE)
+![Account Details Page](Account_Details_Page.png)
 
 - The account details page is pretty self-explanatory, showing the user's name, total listening time, and the top 3 most-listened-to playlists.
 - The user can click on any of the displayed playlists in the "My Top Playlists:" section to view that playlist.
@@ -48,7 +48,7 @@ Thank you for choosing Bitbox! This document provides a visual walkthrough of th
 
 ## **Playlist Page**
 
-![Playlist Page](PASTE URL HERE)
+![Playlist Page](Playlist_Page.png)
 
 - Basic information such as the playlist name, number of songs, and individual songs are shown on this page.
 - To navigate back to the previous page, use the "Back" button in the top left.
@@ -62,7 +62,7 @@ Thank you for choosing Bitbox! This document provides a visual walkthrough of th
 
 ## **Now Playing Page**
 
-![Now Playing Page](PASTE URL HERE)
+![Now Playing Page](Now_Playing.png)
 
 - Song titles and artists are shown in the middle of the page.
 - To go back to the home page, use the "Home" button in the top left.
