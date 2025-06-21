@@ -122,17 +122,9 @@ class APIRoutes:
                 similar_song_list.append(self.db.get_song_by_url(similar_song_url))
                 song = self.db.get_song_by_url(similar_song_url)
 
-
-
-
-
-
-
-            # Access the DatabaseInterface instance from g
-            songs = self.db.get_songs_in_playlist(playlist_id)
-            if songs:
-                return jsonify(songs), 200
+            if len(similar_song_list) == 5:
+                return jsonify(similar_song_list), 200
             else:
-                return jsonify({"message": f"No songs found for playlist ID {playlist_id} or playlist does not exist."}), 404
+                return jsonify({"message": f"Unable to find similar for song ID {song_id}"}), 404
 
 
