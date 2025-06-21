@@ -60,10 +60,6 @@ export default function AccountScreen() {
             {/*Account Details*/}
             <Text style={styles.header}>Account Details:</Text>
             <Text style={styles.subHeader}>Keegan S.</Text>
-
-            <Text style={styles.label}>Minutes Listened:</Text>
-            <Text style={styles.value}>123</Text>
-
             <Text style={styles.label}>My Top Playlists:</Text>
 
             {/*The boxes for the playlists, *pressable* makes them clickable*/}
