@@ -103,6 +103,13 @@ export default function MusicScreen() {
             )}
 
             <View style={styles.controls}>
+                <Pressable style={styles.controlButton} onPress={() => {}}>
+                    <Image
+                        source={require('../assets/BitBox_Main_Logo-removebg-preview.png')}
+                        style={styles.logoIcon}
+                    />
+                </Pressable>
+
                 <Pressable style={styles.controlButton}>
                     <Text style={styles.controlSymbol}>⏮</Text>
                 </Pressable>
@@ -192,5 +199,11 @@ const styles = StyleSheet.create({
     },
     pressedButton: {
         transform: [{ scale: 0.9 }],
+    },
+    logoIcon: {
+        width: 60,
+        height: 60,
+        resizeMode: 'contain',
+        marginHorizontal: 10
     },
 });
