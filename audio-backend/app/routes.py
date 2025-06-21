@@ -110,5 +110,21 @@ class APIRoutes:
                 return jsonify(songs), 200
             else:
                 return jsonify({"message": f"No songs found for playlist ID {playlist_id} or playlist does not exist."}), 404
+            
+
+        @api.route('/songs/<int:song_id>/similar', methods=['GET'])
+        def get_similar_songs(song_id):
+            similar_song_list = []
+
+            song = self.db.get_song_by_id(song_id)
+            for i in range(5):
+                similar_song_url = song[-1]
+                similar_song_list.append(self.db.get_song_by_url(similar_song_url))
+                song = self.db.get_song_by_url(similar_song_url)
+
+            if len(similar_song_list) == 5:
+                return jsonify(similar_song_list), 200
+            else:
+                return jsonify({"message": f"Unable to find similar for song ID {song_id}"}), 404
 
 
