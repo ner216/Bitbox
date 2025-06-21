@@ -1,4 +1,8 @@
 # Development Information for Flask API Routes
+
+### Technical Information:
+The code for the routes is located in the `routes.py` file.
+
 ### Route Usage:
 > Base url -> http://127.0.0.1:5000
 
