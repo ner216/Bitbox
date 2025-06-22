@@ -28,7 +28,7 @@ export default function MusicScreen() {
                 const songData = response.data;
                 setSong(songData);
 
-                const audioUri = `${BASE_URL}/music/${songData.audioFilename}`;
+                const audioUri = `${BASE_URL}/music/${songData.audio_file_url}`;
 
                 const { sound } = await Audio.Sound.createAsync(
                     { uri: audioUri },

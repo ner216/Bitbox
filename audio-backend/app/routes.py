@@ -93,7 +93,7 @@ class APIRoutes:
         @api.route('/music/<filename>')
         def serve_music(filename):
             try:
-                return send_from_directory("app/db/music/", filename, as_attachment=False)
+                return send_from_directory("db/music/", filename, as_attachment=False)
             except FileNotFoundError:
                 print("[ERROR] Unable to find music file! [routes::serve_music]")
                 return
