@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import {View, Text, Image, Pressable, StyleSheet, Platform, TouchableOpacity} from 'react-native';
+import { View, Text, Image, Pressable, StyleSheet, Platform, TouchableOpacity } from 'react-native';
 import { Audio } from 'expo-av';
 import axios from 'axios';
-import {router, useLocalSearchParams} from "expo-router";
+import { router } from 'expo-router';
 
-{/*the function for making the slider move with the song*/}
+const BASE_URL = 'http://127.0.0.1:5000';
+
 const formatTime = (millis: number) => {
     const totalSeconds = Math.floor(millis / 1000);
     const minutes = Math.floor(totalSeconds / 60);
@@ -13,35 +14,35 @@ const formatTime = (millis: number) => {
 };
 
 export default function MusicScreen() {
-    const { playlistID } = useLocalSearchParams();
-
     const [song, setSong] = useState<any>(null);
     const [sound, setSound] = useState<Audio.Sound | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [duration, setDuration] = useState(1); // using 1 to avoid div-by-zero error
+    const [duration, setDuration] = useState(1);
     const [position, setPosition] = useState(0);
     const isSeeking = useRef(false);
 
     useEffect(() => {
         const fetchSong = async () => {
             try {
-                const response = await axios.get('https://whatevbackend.com/api/song/1');
+                const response = await axios.get(`${BASE_URL}/songs/1`);
                 const songData = response.data;
                 setSong(songData);
 
+                const audioUri = `${BASE_URL}/music/${songData.audio_file_url}`;
+
                 const { sound } = await Audio.Sound.createAsync(
-                    { uri: songData.audio },
+                    { uri: audioUri },
                     { shouldPlay: false },
                     onPlaybackStatusUpdate
                 );
+
                 setSound(sound);
             } catch (error) {
-                console.error('Error loading song:', error); //makes an error if it cant load the song
+                console.error('Error loading song:', error);
             }
         };
 
         fetchSong();
-
         return () => {
             sound?.unloadAsync();
         };
@@ -55,11 +56,7 @@ export default function MusicScreen() {
 
     const togglePlayback = async () => {
         if (!sound) return;
-        if (isPlaying) {
-            await sound.pauseAsync();
-        } else {
-            await sound.playAsync();
-        }
+        isPlaying ? await sound.pauseAsync() : await sound.playAsync();
         setIsPlaying(!isPlaying);
     };
 
@@ -72,17 +69,15 @@ export default function MusicScreen() {
         isSeeking.current = false;
     };
 
-
     return (
         <View style={styles.container}>
             <Image
-                source={require('../assets/BitBox_Main_Logo-removebg-preview.png')} // or your default image
+                source={require('../assets/BitBox_Main_Logo-removebg-preview.png')}
                 style={styles.albumArt}
             />
 
             <Text style={styles.title}>{song?.title || '...'}</Text>
             <Text style={styles.artist}>{song?.artist || '...'}</Text>
-
 
             <View style={styles.timeRow}>
                 <Text style={styles.timestamp}>{formatTime(position)}</Text>
@@ -103,6 +98,13 @@ export default function MusicScreen() {
             )}
 
             <View style={styles.controls}>
+                <Pressable style={styles.controlButton} onPress={() => {}}>
+                    <Image
+                        source={require('../assets/BitBox_Main_Logo-removebg-preview.png')}
+                        style={styles.logoIcon}
+                    />
+                </Pressable>
+
                 <Pressable style={styles.controlButton}>
                     <Text style={styles.controlSymbol}>⏮</Text>
                 </Pressable>
@@ -127,19 +129,11 @@ export default function MusicScreen() {
                 </Pressable>
 
             </View>
-            <TouchableOpacity
-                style={styles.backButton}
-                onPress={() => router.replace(`/playlist/${playlistID}`)} // Ensure it's passed back correctly
-            >
-                <Text style={styles.backButtonText}>← Back</Text>
-            </TouchableOpacity>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    backButton: { position: "absolute", left: 16, top: 40, backgroundColor: "#2222ff", padding: 8, borderRadius: 8 },
-    backButtonText: { color: "#fff", fontWeight: "bold", fontSize: 16 },
     container: {
         flex: 1,
         backgroundColor: 'rgb(0, 0, 255)',
@@ -192,5 +186,11 @@ const styles = StyleSheet.create({
     },
     pressedButton: {
         transform: [{ scale: 0.9 }],
+    },
+    logoIcon: {
+        width: 60,
+        height: 60,
+        resizeMode: 'contain',
+        marginHorizontal: 10
     },
 });

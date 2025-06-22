@@ -292,7 +292,21 @@ class db_interface(object):
         except Exception as e:
             print(f"[ERROR] Unable to execute create-playlist-song query. [db_interface::create_playlist_song]\n Err: {e}")
             return False
+        
     
+    # Methods for deleting entries from the database ----------------------------------------------------------------------
+    def remove_playlist_by_id(self, playlist_id:int) -> bool:
+        try:
+            self.execute_query(
+                "DELETE FROM Playlists WHERE playlist_id = %s",
+                params=(playlist_id,),
+                commit=True
+            )
+            return True
+        except Exception as e:
+            print(f"[ERROR] Unable to execute remove-playlist query. [db_interface::remove_playlist]\n Err: {e}")
+            return False
+
 
     # Methods for searching the database ----------------------------------------------------------------------------------
     def get_song_by_name(self, name:str) -> list:
@@ -305,6 +319,19 @@ class db_interface(object):
             return result
         except Exception as e:
             print(f"[ERROR] Unable find song [db_interface::get_song_by_name]\n Err: {e}")
+            return []
+        
+        
+    def get_song_by_url(self, file_url:str) -> list:
+        try:
+            result = self.execute_query(
+                "SELECT * FROM Songs WHERE audio_file_url = %s;",
+                params=(file_url,),
+                fetch_one=True
+            )
+            return result
+        except Exception as e:
+            print(f"[ERROR] Unable find song [db_interface::get_song_by_url]\n Err: {e}")
             return []
     
     
@@ -332,6 +359,19 @@ class db_interface(object):
             return result[0] # Return the id of the user
         except Exception as e:
             print(f"[ERROR] Unable to find user. [db_interface::get_user_id]\n Err: {e}")
+            return "None"
+        
+        
+    def get_user_info(self, user_id:int) -> list:
+        try:
+            result = self.execute_query(
+                "SELECT FROM Users WHERE user_id = %s",
+                params=(user_id,),
+                fetch_one=True
+            )
+            return result
+        except Exception as e:
+            print(f"[ERROR] Unable to find user. [db_interface::get_user_info]\n Err: {e}")
             return "None"
     
     
