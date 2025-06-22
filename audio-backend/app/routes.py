@@ -19,7 +19,7 @@ class APIRoutes:
                 return jsonify(song), 200
             return jsonify({'error': 'Song not found'}), 404
 
-        # 2. Login
+        # Login
         @api.route('/login', methods=['POST'])
         def login():
             data = request.get_json()
@@ -30,13 +30,13 @@ class APIRoutes:
                 return jsonify({"user_id": user_id}), 200
             return jsonify({"error": "Invalid credentials"}), 401
 
-        # 3. Get playlists by user ID
+        # Get playlists by user ID
         @api.route('/users/<int:user_id>/playlists', methods=['GET'])
         def get_playlists(user_id):
             playlists = self.db.get_playlist_by_user_id(user_id)
             return jsonify(playlists), 200
 
-        # 5. Create user
+        # Create user
         @api.route('/users', methods=['POST'])
         def create_user():
             data = request.get_json()
@@ -46,48 +46,50 @@ class APIRoutes:
             if success:
                 return jsonify({'message': 'User created'}), 201
             return jsonify({'error': 'User already exists or creation failed'}), 400
+        
+
+        # Get user info
+        @api.route('/users/<int:user_id>/info', methods=['GET'])
+        def get_user_info(user_id):
+            user = self.db.get_user_info(user_id)
+            if user:
+                return jsonify(user), 200
+            return jsonify({'error': 'User not found'}), 404
+
 
         # Song search by name
         @api.route('/songs/<string:name>/search', methods=['GET'])
         def search_songs(name):
-            """
-            Searches for songs by name in the database.
-            Expected input:
-                - name (str): The name of the song to search for.
-            Expected output:
-                - If songs are found, returns a JSON array of song data with a 200 status.
-                - If no songs are found, returns a JSON error message with a 404 status.
-            """
             results = self.db.get_song_by_name(name)
             if results:
                 return jsonify(results), 200
             return jsonify({"message": "No songs match search."}), 404
         
+
         # Create playlist
         @api.route('/users/<int:user_id>/playlists', methods=['POST'])
         def create_playlist(user_id):
-            """
-            Creates a new playlist for a given user.
-            Expected input:
-                - user_id (int): The ID of the user creating the playlist.
-                - JSON body: {'playlist_name': 'My New Playlist Name'}
-            Expected output:
-                - If successful, returns a success message with a 201 status.
-                - If failed, returns an error message with a 400 status.
-            """
             data = request.get_json()
             playlist_name = data.get('playlist_name')
 
             if not playlist_name:
                 return jsonify({'error': 'Playlist name is required'}), 400
 
-            # Assuming your db.interface has a method like create_playlist(user_id, playlist_name)
-            # This method should return True on success, False on failure
             success = self.db.create_playlist(user_id, playlist_name)
 
             if success:
                 return jsonify({'message': f'Playlist "{playlist_name}" created successfully for user {user_id}'}), 201
             return jsonify({'error': f'Failed to create playlist "{playlist_name}" for user {user_id}'}), 400
+        
+
+        # Remove playlist
+        @api.route('/playlist/<int:playlist_id>/remove', methods=['DELETE'])
+        def remove_playlist(playlist_id):
+            success = self.db.remove_playlist_by_id(playlist_id)
+
+            if success:
+                return jsonify({'message': f'Playlist "{playlist_id}" deleted successfully'}), 201
+            return jsonify({'error': f'Failed to delete playlist "{playlist_id}"'}), 400
         
 
         @api.route('/music/<filename>')

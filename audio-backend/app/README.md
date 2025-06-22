@@ -34,3 +34,9 @@ The code for the routes is located in the `routes.py` file.
 - `/songs/<int:song_id>/similar`
     - Get five song data entries(as list) that are similar to the given song(song ID).
 
+- `/users/<int:user_id>/info`
+    - Get user information from the databse(username and password) given a user ID.
+
+- `/playlist/<int:playlist_id>/remove`
+    - Delete a playlist from the database given a playlist ID.
+
