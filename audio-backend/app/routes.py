@@ -83,7 +83,7 @@ class APIRoutes:
         
 
         # Remove playlist
-        @api.route('/playlist/<int:playlist_id>', methods=['DELETE'])
+        @api.route('/playlist/<int:playlist_id>/remove', methods=['DELETE'])
         def remove_playlist(playlist_id):
             success = self.db.remove_playlist_by_id(playlist_id)
 
