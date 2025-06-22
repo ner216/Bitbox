@@ -65,11 +65,11 @@ class APIRoutes:
                 return jsonify(results), 200
             return jsonify({"message": "No songs match search."}), 404
 
+
         # Create playlist
         @api.route('/users/<int:user_id>/playlists', methods=['POST'])
-        def create_playlist(self, user_id, playlist_name):
-            print(f"🛠 Creating playlist '{playlist_name}' for user {user_id}")
-
+        def create_playlist(user_id): # Removed playlist_name from here
+            print(f"🛠 Attempting to create playlist for user {user_id}")
             """
             Creates a new playlist for a given user.
             Expected input:
@@ -85,13 +85,34 @@ class APIRoutes:
             if not playlist_name:
                 return jsonify({'error': 'Playlist name is required'}), 400
 
-            # Assuming your db.interface has a method like create_playlist(user_id, playlist_name)
-            # This method should return True on success, False on failure
             success = self.db.create_playlist(user_id, playlist_name)
 
             if success:
+                print(f"Playlist '{playlist_name}' created successfully for user {user_id}")
                 return jsonify({'message': f'Playlist "{playlist_name}" created successfully for user {user_id}'}), 201
+            print(f"Failed to create playlist '{playlist_name}' for user {user_id}")
             return jsonify({'error': f'Failed to create playlist "{playlist_name}" for user {user_id}'}), 400
+        
+
+        # Delete playlist
+        @api.route('/playlists/<int:playlist_id>', methods=['DELETE'])
+        def delete_playlist(playlist_id):
+            """
+            Deletes a playlist for a given user.
+            Expected input:
+                - user_id (int): The ID of the user whose playlist is being deleted.
+                - playlist_id (int): The ID of the playlist to delete.
+            Expected output:
+                - If successful, returns a success message with a 200 status.
+                - If the playlist is not found or deletion fails, returns an error message with a 404 or 400 status.
+            """
+            success = self.db.remove_playlist_by_id(playlist_id)
+
+            if success:
+                print(f"Playlist {playlist_id} deleted successfully")
+                return jsonify({'message': f'Playlist {playlist_id} deleted successfully'}), 200
+            print(f"Failed to delete playlist {playlist_id}")
+            return jsonify({'error': f'Failed to delete playlist {playlist_id}'}), 404
 
 
         @api.route('/music/<filename>')

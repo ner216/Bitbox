@@ -380,7 +380,6 @@ class db_interface(object):
             result = self.execute_query(
                 "SELECT * FROM Playlists WHERE user_id = %s;",
                 params=(str(id),),
-
                 fetch_all=True
             )
             return result
