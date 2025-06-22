@@ -44,7 +44,7 @@ class APIRoutes:
             password = data.get("password")
             print(f"👤 Registering user: {username} / {password}")
             success = self.db.create_user(username, password)
-            print(f" Registration success? {success}")
+            print(f"✅ Registration success? {success}")
             if success:
                 return jsonify({'message': 'User created'}), 201
             return jsonify({'error': 'User already exists or creation failed'}), 400
