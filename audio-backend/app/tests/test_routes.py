@@ -112,10 +112,18 @@ def test_add_song_to_playlist(playlist_id:int, song_id:int):
     response = requests.post(f"{BASE_URL}/playlist/{playlist_id}/add_song/{song_id}")
     print(response)
 
+def test_remove_playlist(playlist_id:int):
+    response = requests.delete(f"{BASE_URL}/playlist/{playlist_id}/remove")
+    print(response)
+
+def test_get_user_info(user_id:int):
+    response = requests.get(f"{BASE_URL}/users/{user_id}/info")
+    print(response.json())
+
 
 def main():
     stop = False
-    functions = {
+    routes = {
         "get_song":"0",
         "create_user":"1",
         "test_login":"2",
@@ -124,15 +132,17 @@ def main():
         "create_playlist":"5",
         "add_song_to_playlist":"6",
         "get_playlist_songs":"7",
-        "find_similar_songs":"8"
+        "find_similar_songs":"8",
+        "remove_playlist_by_id":"9",
+        "get_user_info":"10"
     }
 
     while stop != True:
-        print("\nFunctions:")
-        for f in functions:
-            print(f"  {f}:{functions[f]}")
+        print("\nRoutes:")
+        for r in routes:
+            print(f"  {r}:{routes[r]}")
         
-        choice = input("Options [0,1,2,3,4,5,6,7,8,q] > ")
+        choice = input("Options [0,1,2,3,4,5,6,7,8,9,10,q] > ")
         if choice == "0":
             song_id = int(input("Enter song ID > "))
             test_get_song(song_id)
@@ -164,6 +174,12 @@ def main():
         elif choice == "8":
             song_id = int(input("song ID > ")) 
             test_similar_song(song_id)
+        elif choice == "9":
+            playlist_id = int(input("playlist ID > "))
+            test_remove_playlist(playlist_id)
+        elif choice == "10":
+            user_id = int(input("user ID > "))
+            test_get_user_info(user_id)
         elif choice == "q":
             stop = True
 

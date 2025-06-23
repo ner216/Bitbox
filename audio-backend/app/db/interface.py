@@ -363,11 +363,11 @@ class db_interface(object):
             print(f"[ERROR] Unable to find user. [db_interface::get_user_id]\n Err: {e}")
             return "None"
         
-        
+    
     def get_user_info(self, user_id:int) -> list:
         try:
             result = self.execute_query(
-                "SELECT FROM Users WHERE user_id = %s",
+                "SELECT * FROM Users WHERE user_id = %s",
                 params=(user_id,),
                 fetch_one=True
             )
