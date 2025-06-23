@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { View, Text, FlatList, ScrollView, TouchableOpacity, StyleSheet, Image, Animated } from "react-native";
 import { Link } from "expo-router";
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 // Images to test the cover
 const playlistCovers = [
     "https://celebmix.com/wp-content/uploads/2023/04/alan-walker-takes-it-back-to-the-beginning-with-his-new-single-dreamer-which-pays-homage-to-his-breakthrough-hits-faded-and-alone-01-scaled.jpg",
@@ -20,58 +20,78 @@ export default function Home() {
 
     type Playlist = { id: string; name: string; cover: string };
     const [playlists, setPlaylists] = useState<Playlist[]>([]);
-    // For playlist
+    // // For playlist
+    // useEffect(() => {
+    //     const fetchPlaylists = async () => {
+    //         try {
+    //             const response = await fetch("http://localhost:3000/playlists");
+    //             const data = await response.json();
+    //             setPlaylists(data); // Update state with fresh data
+    //         } catch (error) {
+    //             console.error("Error fetching playlists:", error);
+    //         }
+    // //     };
+    const [userId, setUserId] = useState<number | null>(null);
+
     useEffect(() => {
-        const fetchPlaylists = async () => {
-            try {
-                const response = await fetch("http://localhost:3000/playlists");
-                const data = await response.json();
-                setPlaylists(data); // Update state with fresh data
-            } catch (error) {
-                console.error("Error fetching playlists:", error);
-            }
+        const fetchUserId = async () => {
+            const stored = await AsyncStorage.getItem("user_id");
+            if (stored) setUserId(Number(stored));
         };
+        fetchUserId();
+    }, []);
+    const fetchUserPlaylists = async () => {
+        if (!userId) return;
+        try {
+            const response = await fetch(`http://localhost:5000/users/${userId}/playlists`);
+            if (!response.ok) throw new Error("Failed to fetch playlists");
+            const data = await response.json();
+            setPlaylists(data);
+        } catch (error) {
+            console.error("Error fetching playlists:", error);
+        }
+    };
+    const handleAddPlaylist = async () => {
+        const newName = `New Playlist ${playlists.length + 1}`;
 
-        fetchPlaylists();
-    }, [playlists]);
+        try {
+            const response = await fetch(`http://localhost:5000/users/${userId}/playlists`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ playlist_name: "newName" }),
+            });
 
+            if (!response.ok) throw new Error("Failed to add playlist");
+
+            const result = await response.json();
+            console.log("Playlist created:", result);
+
+            // Re-fetch updated playlists after creation
+            await fetchUserPlaylists();
+        } catch (error) {
+            console.error("Error adding playlist:", error);
+        }
+    };
+    useEffect(() => {
+        if (userId !== null) {
+            fetchUserPlaylists();
+        }
+    }, [userId]);
     const handleDelete = async (id: string) => {
         try {
-            const response = await fetch(`http://localhost:3000/playlists/${id}`, {
+            const response = await fetch(`http://localhost:5000/playlists/${id}`, {
                 method: "DELETE",
             });
 
             if (!response.ok) throw new Error("Failed to delete playlist");
 
-            // Fetch updated playlists from json-server to ensure UI syncs
-            const updatedResponse = await fetch("http://localhost:3000/playlists");
-            const updatedPlaylists = await updatedResponse.json();
-            setPlaylists(updatedPlaylists); // Sync state with backend data
+            // After successful delete, refresh the playlist list
+            await fetchUserPlaylists();
         } catch (error) {
             console.error("Error deleting playlist:", error);
         }
     };
-    const handleAddPlaylist = async () => {
-        const newPlaylist = {
-            name: `New Playlist ${playlists.length + 1}`,
-            cover: playlistCovers[playlists.length % playlistCovers.length],
-        };
 
-        try {
-            const response = await fetch("http://localhost:3000/playlists", { // Use local json-server
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(newPlaylist),
-            });
-
-            if (!response.ok) throw new Error("Failed to add playlist");
-
-            const addedPlaylist = await response.json(); // json-server auto-generates an ID
-            setPlaylists([...playlists, addedPlaylist]); // Add new playlist to state
-        } catch (error) {
-            console.error("Error adding playlist:", error);
-        }
-    };
     // For the feature
     useEffect(() => {
         const fetchMockFeaturedPlaylists = () => {
@@ -114,7 +134,7 @@ export default function Home() {
                     <TouchableOpacity style={styles.accountButton}>
                         <Text style={styles.accountIcon}>👤</Text>
                     </TouchableOpacity>
-                     </Link>
+                </Link>
             </View>
 
             {/* This is  Featured Playlists */}
@@ -141,17 +161,19 @@ export default function Home() {
                 style={styles.playlistList}
                 renderItem={({ item }) => (
                     <View style={styles.playlistHome}>
-                    {/*// We use pahtname because now we click on the playlist we got different pages*/}
-                    <Link href={{
-                        pathname: "/playlist/[playlistID]",
-                        params: { playlistID: item.id }
-                    }} asChild>
-                        <TouchableOpacity style={styles.playlistRow} activeOpacity={0.7}>
-                            <Image source={{ uri: item.cover }} style={styles.playlistImg} />
-                            <Text style={styles.playlistName}>{item.name}</Text>
-                            {/* This is to prevent the delete button to trigger the navigation */}
-                        </TouchableOpacity>
-                    </Link>
+                        {/*// We use pahtname because now we click on the playlist we got different pages*/}
+                        <Link
+                            href={{
+                                pathname: "/playlist/[playlistID]",
+                                params: { playlistID: item.id }
+                            }}
+                        >
+                            <TouchableOpacity style={styles.playlistRow} activeOpacity={0.7}>
+                                <Image source={{ uri: item.cover }} style={styles.playlistImg} />
+                                <Text style={styles.playlistName}>{item.name}</Text>
+                                {/* This is to prevent the delete button to trigger the navigation */}
+                            </TouchableOpacity>
+                        </Link>
                         <TouchableOpacity
                             style={styles.deleteButton}
                             onPress={(e) => {
@@ -407,4 +429,24 @@ const styles = StyleSheet.create({
 //     } catch (error) {
 //         console.error("Error adding playlist:", error);
 //     }
-// };
+// };const handleAddPlaylist = async () => {
+//         const newPlaylist = {
+//             name: `New Playlist ${playlists.length + 1}`,
+//             cover: playlistCovers[playlists.length % playlistCovers.length],
+//         };
+//
+//         try {
+//             const response = await fetch("http://localhost:3000/playlists", { // Use local json-server
+//                 method: "POST",
+//                 headers: { "Content-Type": "application/json" },
+//                 body: JSON.stringify(newPlaylist),
+//             });
+//
+//             if (!response.ok) throw new Error("Failed to add playlist");
+//
+//             const addedPlaylist = await response.json(); // json-server auto-generates an ID
+//             setPlaylists([...playlists, addedPlaylist]); // Add new playlist to state
+//         } catch (error) {
+//             console.error("Error adding playlist:", error);
+//         }
+//     };

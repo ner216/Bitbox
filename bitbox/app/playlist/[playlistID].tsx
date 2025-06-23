@@ -13,13 +13,12 @@ export default function PlaylistPage() {
     useEffect(() => {
         const fetchPlaylist = async () => {
             try {
-                const response = await fetch(`http://localhost:3000/playlists/${playlistID}`);
-                if (!response.ok)   throw new Error("Failed to fetch playlist");
+                const response = await fetch(`http://localhost:5000/playlist/${playlistID}/songs`);
+                if (!response.ok) throw new Error("Failed to fetch playlist songs");
 
-                const data = await response.json();
-                console.log("Fetched Playlist Data:", data); // Log fetched data
-                setPlaylist(data);
-                setSongs(data.songs || []); // Ensure songs exist
+                const songs = await response.json();
+                console.log("Fetched Songs:", songs);
+                setSongs(songs);
             } catch (error) {
                 console.error("Error fetching playlist:", error);
             }
@@ -35,7 +34,7 @@ export default function PlaylistPage() {
     // };
     const handleRemoveSong = async (id: string) => {
         try {
-            const response = await fetch(`http://localhost:3000/playlists/${playlistID}`, {
+            const response = await fetch(`http://localhost:5000/playlist/${playlistID}/songs`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ songs: songs.filter(song => song.id !== id) })
@@ -66,25 +65,25 @@ export default function PlaylistPage() {
     //     ]);
     // };
     const handleAddSong = async () => {
-        if (!playlist) return; // Prevent errors if playlist is null
+        if (!playlistID) return;
 
-        const newSong = { id: `${songs.length + 1}`, title: `New Song ${songs.length + 1}`, artist: "Unknown Artist" };
+        const newSong = {
+            title: `New Song ${songs.length + 1}`,
+            artist: "Unknown Artist"
+        };
 
         try {
-            const updatedSongs = [...songs, newSong];
-
-            const response = await fetch(`http://localhost:3000/playlists/${playlistID}`, {
-                method: "PATCH",
+            const response = await fetch(`http://localhost:5000/playlist/${playlistID}`, {
+                method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ songs: updatedSongs }) // Update songs array in backend
+                body: JSON.stringify(newSong),
             });
-
-            const responseData = await response.json();
-            console.log("PATCH Response:", responseData); // Log response from json-server
 
             if (!response.ok) throw new Error("Failed to add song");
 
-            setSongs(updatedSongs); // Update UI after backend confirms
+            const updatedSongs = await response.json();
+            console.log("Updated songs from backend:", updatedSongs);
+            setSongs(updatedSongs); // Refresh the list from backend
         } catch (error) {
             console.error("Error adding song:", error);
         }

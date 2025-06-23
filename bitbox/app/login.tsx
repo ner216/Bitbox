@@ -5,7 +5,8 @@ import { Link, router} from "expo-router";
 import {LinearGradient} from "expo-linear-gradient";
 import Animated, {useSharedValue, useAnimatedStyle, withTiming, withRepeat, FadeInUp, FadeInDown
 } from "react-native-reanimated";
-import axios from "axios";
+import axios, { isAxiosError } from 'axios';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Index() {
     const [username, setUsername] = useState("");
@@ -15,50 +16,61 @@ export default function Index() {
     const { width} = Dimensions.get("window");
     // Making a function to go to home page and using this router to do history stack which is to save
     // the screen where the user was visited so it would go back to the page they last visted
+    // const handleLogin = async () => {
+    //     try {
+    //         // const response = await axios.post("https://your-backend-url.com/login", {
+    //         //     username,
+    //         //     password,
+    //         // });
+    //         const mockResponse = {
+    //             success: username === "ka" && password === "123",
+    //         };
+    //
+    //         if (mockResponse.success) {
+    //             router.replace("/home"); // Navigate to home page
+    //         } else {
+    //             setErrorMessage("Invalid credentials. Please try again.");
+    //         }
+    //     } catch (error) {
+    //         console.error("Login error:", error);
+    //         setErrorMessage("Network error. Please check your connection.");
+    //     }
+    // };
     const handleLogin = async () => {
         try {
-            // const response = await axios.post("https://your-backend-url.com/login", {
-            //     username,
-            //     password,
-            // });
-            const mockResponse = {
-                success: username === "ka" && password === "123",
-            };
+            const response = await axios.post("http://127.0.0.1:5000/login", {
+                username,
+                password,
+            });
 
-            if (mockResponse.success) {
-                router.replace("/home"); // Navigate to home page
+            console.log("Login response:", response.status, response.data);
+
+            const userId = response.data.user_id;
+
+            if (
+                response.status === 200 &&
+                userId !== null &&
+                userId !== undefined &&
+                userId !== "None"
+            ) {
+                console.log("Login successful:", response.data);
+                await AsyncStorage.setItem("user_id", userId.toString());
+                router.replace("/home");
             } else {
                 setErrorMessage("Invalid credentials. Please try again.");
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Login error:", error);
-            setErrorMessage("Network error. Please check your connection.");
+
+            if (isAxiosError(error)) {
+                setErrorMessage(
+                    error.response?.data?.error || "Invalid credentials. Please try again."
+                );
+            } else {
+                setErrorMessage("Network error. Please check your connection.");
+            }
         }
     };
-//     const handleLogin = async () => {
-//     try {
-//         const response = await axios.post("http://localhost:8000/login", {
-//             username,
-//             password,
-//         });
-//
-//         if (response.status === 200) {
-//             console.log("Login successful:", response.data);
-//             router.replace("/home"); // Navigate to home page
-//         } else {
-//             setErrorMessage(response.data.message || "Invalid credentials. Please try again.");
-//         }
-//     } catch (error: any) { // Explicitly define error type
-//         console.error("Login error:", error);
-//
-//         if (axios.isAxiosError(error)) {
-//             setErrorMessage(error.response?.data?.message || "Invalid credentials. Please try again.");
-//         } else {
-//             setErrorMessage("Network error. Please check your connection.");
-//         }
-//     }
-// };
-
     const translateX = useSharedValue(100); // Starts far left
 
     React.useEffect(() => {
@@ -88,44 +100,44 @@ export default function Index() {
                             entering={FadeInUp.duration(1000).springify()}
             />
             <Animated.View entering={FadeInDown.delay(200).duration(1000).springify()}>
-            <Text style={styles.title}>Welcome to BitBox!</Text>
+                <Text style={styles.title}>Welcome to BitBox!</Text>
             </Animated.View>
             {/*Insert Username and password*/}
             <Animated.View entering={FadeInDown.duration(1000).springify()}>
-            <TextInput
-                placeholder="Username"
-                placeholderTextColor="#fff"
-                style={styles.input}
-                value={username} onChangeText={setUsername}
-            />
+                <TextInput
+                    placeholder="Username"
+                    placeholderTextColor="#fff"
+                    style={styles.input}
+                    value={username} onChangeText={setUsername}
+                />
             </Animated.View>
             <Animated.View entering={FadeInDown.delay(200).duration(1000).springify()}>
-            <TextInput
-                placeholder="Password"
-                placeholderTextColor="#fff"
-                secureTextEntry
-                style={styles.input}
-                value={password} onChangeText={setPassword}
-            />
+                <TextInput
+                    placeholder="Password"
+                    placeholderTextColor="#fff"
+                    secureTextEntry
+                    style={styles.input}
+                    value={password} onChangeText={setPassword}
+                />
             </Animated.View>
             {/*Making login and the register button*/}
             {/*Make login button change color when press it down*/}
             <Animated.View entering={FadeInDown.delay(400).duration(1000).springify()}>
-            <Pressable style={({ pressed }) => [
-                styles.button,
-                { backgroundColor: pressed ? "#0000dd" : "#2222ff" }
-            ]} onPress={handleLogin}>
-                <Text style={styles.buttonText}>Log In </Text>
-            </Pressable>
+                <Pressable style={({ pressed }) => [
+                    styles.button,
+                    { backgroundColor: pressed ? "#0000dd" : "#2222ff" }
+                ]} onPress={handleLogin}>
+                    <Text style={styles.buttonText}>Log In </Text>
+                </Pressable>
             </Animated.View>
             {/* Error Message */}
             {errorMessage ? <Text style={{ color: "red", marginTop: 10 }}>{errorMessage}</Text> : null}
 
             <Animated.View entering={FadeInDown.delay(600).duration(1000).springify()}>
-            <Text style={styles.newHere}>New Here?</Text>
+                <Text style={styles.newHere}>New Here?</Text>
             </Animated.View>
             <Animated.View entering={FadeInDown.delay(600).duration(1000).springify()}>
-            <Link href={"/register"} style={styles.register}>Register Now</Link>
+                <Link href={"/register"} style={styles.register}>Register Now</Link>
             </Animated.View>
         </View>
 
