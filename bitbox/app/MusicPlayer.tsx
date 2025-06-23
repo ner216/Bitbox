@@ -123,6 +123,11 @@ export default function MusicScreen() {
                 <Pressable style={styles.controlButton}>
                     <Text style={styles.controlSymbol}>⏭</Text>
                 </Pressable>
+
+                <Pressable style={styles.controlButton}>
+                    <Text style={styles.controlSymbol}>{"<"}</Text>
+                </Pressable>
+
             </View>
         </View>
     );

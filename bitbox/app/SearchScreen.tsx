@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-    View,
-    TextInput,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    FlatList,
-    Image,
+    View, TextInput, StyleSheet, Text, TouchableOpacity, FlatList, Image
 } from 'react-native';
 import { router } from 'expo-router';
 
@@ -18,11 +12,11 @@ export default function SearchScreen() {
     useEffect(() => {
         const fetchPlaylists = async () => {
             try {
-                const response = await fetch('http://localhost:3000/playlists');
+                const response = await fetch("http://127.0.0.1:5000/playlists");
                 const data = await response.json();
                 setPlaylists(data);
             } catch (error) {
-                console.error('Error fetching playlists:', error);
+                console.error("Error fetching playlists:", error);
             }
         };
         fetchPlaylists();
@@ -31,7 +25,7 @@ export default function SearchScreen() {
     useEffect(() => {
         const lower = query.toLowerCase();
         setFiltered(
-            playlists.filter((p) => p.name.toLowerCase().includes(lower))
+            playlists.filter(p) => p.name.toLowerCase().includes(lower))
         );
     }, [query, playlists]);
 
@@ -39,7 +33,7 @@ export default function SearchScreen() {
         <View style={styles.container}>
             <TouchableOpacity
                 style={styles.backButton}
-                onPress={() => router.replace('/home')}
+                onPress={() => router.replace("/home")}
             >
                 <Text style={styles.backButtonText}>← Back</Text>
             </TouchableOpacity>

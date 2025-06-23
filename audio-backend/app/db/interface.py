@@ -324,11 +324,13 @@ class db_interface(object):
         
     def get_song_by_url(self, file_url:str) -> list:
         try:
+            url = f"%{file_url}%"
             result = self.execute_query(
-                "SELECT * FROM Songs WHERE audio_file_url = %s;",
-                params=(file_url,),
+                "SELECT * FROM Songs WHERE audio_file_url LIKE %s;",
+                params=(url,),
                 fetch_one=True
             )
+            print(f"INTERFACE: {result}")
             return result
         except Exception as e:
             print(f"[ERROR] Unable find song [db_interface::get_song_by_url]\n Err: {e}")
@@ -436,16 +438,15 @@ class db_interface(object):
             with conn.cursor(cursor_factory=RealDictCursor) as curr:
                 query = """
                 SELECT
-                    s.id, s.title, s.artist, s.album, s.duration, s.file_path -- Specify columns you need
-                    -- Add any other columns from the 'songs' table you want to retrieve
+                    s.song_id, s.title, s.artist, s.genre, s.duration_seconds, s.audio_file_url
                 FROM
                     songs s
                 JOIN
-                    playlist_songs ps ON s.id = ps.song_id
+                    PlaylistSongs ps ON s.song_id = ps.song_id
                 JOIN
-                    playlist p ON ps.playlist_id = p.id
+                    Playlists p ON ps.playlist_id = p.playlist_id
                 WHERE
-                    p.id = %s;
+                    p.playlist_id = %s;
                 """
                 curr.execute(query, (playlist_id,)) # Pass the playlist_id as a tuple
                 songs = curr.fetchall() # Fetch all matching rows

@@ -93,19 +93,20 @@ class APIRoutes:
             print(f"Failed to create playlist '{playlist_name}' for user {user_id}")
             return jsonify({'error': f'Failed to create playlist "{playlist_name}" for user {user_id}'}), 400
         
+        
+        # Add song to playlist
+        @api.route('/playlist/<int:playlist_id>/add_song/<int:song_id>', methods=['POST'])
+        def add_song_to_playlist(playlist_id:int, song_id:int):
+            success = self.db.create_playlist_song(playlist_id, song_id)
 
-        # Delete playlist
-        @api.route('/playlists/<int:playlist_id>', methods=['DELETE'])
-        def delete_playlist(playlist_id):
-            """
-            Deletes a playlist for a given user.
-            Expected input:
-                - user_id (int): The ID of the user whose playlist is being deleted.
-                - playlist_id (int): The ID of the playlist to delete.
-            Expected output:
-                - If successful, returns a success message with a 200 status.
-                - If the playlist is not found or deletion fails, returns an error message with a 404 or 400 status.
-            """
+            if success:
+                return jsonify({'message': f'Added song ID {song_id} to playlist ID {playlist_id}'}), 201
+            return jsonify({'error': f'Failed to add song ID {song_id} to playlist ID {playlist_id}'}), 400
+        
+
+        # Remove playlist
+        @api.route('/playlist/<int:playlist_id>/remove', methods=['DELETE'])
+        def remove_playlist(playlist_id):
             success = self.db.remove_playlist_by_id(playlist_id)
 
             if success:
@@ -128,12 +129,28 @@ class APIRoutes:
 
 
         @api.route('/playlist/<int:playlist_id>/songs', methods=['GET'])
-        def get_playlist_songs_route(playlist_id):
+        def get_playlist_songs(playlist_id):
             # Access the DatabaseInterface instance from g
             songs = self.db.get_songs_in_playlist(playlist_id)
             if songs:
                 return jsonify(songs), 200
             else:
                 return jsonify({"message": f"No songs found for playlist ID {playlist_id} or playlist does not exist."}), 404
+            
+
+        @api.route('/similar/<int:song_id>', methods=['GET'])
+        def get_similar_songs(song_id):
+            similar_song_list = []
+
+            song = self.db.get_song_by_id(song_id)
+            for i in range(5):
+                similar_song_url = song[-1]
+                similar_song_list.append(self.db.get_song_by_url(similar_song_url))
+                song = self.db.get_song_by_url(similar_song_url)
+
+            if len(similar_song_list) == 5:
+                return jsonify(similar_song_list), 200
+            else:
+                return jsonify({"message": f"Unable to find similar for song ID {song_id}"}), 404
 
 
