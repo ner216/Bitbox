@@ -82,6 +82,16 @@ class APIRoutes:
             return jsonify({'error': f'Failed to create playlist "{playlist_name}" for user {user_id}'}), 400
         
 
+        # Add song to playlist
+        @api.route('/playlist/<int:playlist_id>/add_song/<int:song_id>', methods=['POST'])
+        def add_song_to_playlist(playlist_id:int, song_id:int):
+            success = self.db.create_playlist_song(playlist_id, song_id)
+
+            if success:
+                return jsonify({'message': f'Added song ID {song_id} to playlist ID {playlist_id}'}), 201
+            return jsonify({'error': f'Failed to add song ID {song_id} to playlist ID {playlist_id}'}), 400
+        
+
         # Remove playlist
         @api.route('/playlist/<int:playlist_id>/remove', methods=['DELETE'])
         def remove_playlist(playlist_id):
@@ -105,7 +115,7 @@ class APIRoutes:
             
         
         @api.route('/playlist/<int:playlist_id>/songs', methods=['GET'])
-        def get_playlist_songs_route(playlist_id):
+        def get_playlist_songs(playlist_id):
             # Access the DatabaseInterface instance from g
             songs = self.db.get_songs_in_playlist(playlist_id)
             if songs:
@@ -114,7 +124,7 @@ class APIRoutes:
                 return jsonify({"message": f"No songs found for playlist ID {playlist_id} or playlist does not exist."}), 404
             
 
-        @api.route('/songs/<int:song_id>/similar', methods=['GET'])
+        @api.route('/similar/<int:song_id>', methods=['GET'])
         def get_similar_songs(song_id):
             similar_song_list = []
 
