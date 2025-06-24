@@ -25,7 +25,7 @@ export default function SearchScreen() {
     useEffect(() => {
         const lower = query.toLowerCase();
         setFiltered(
-            playlists.filter(p) => p.name.toLowerCase().includes(lower))
+            playlists.filter((p) => p.name.toLowerCase().includes(lower))
         );
     }, [query, playlists]);
 
