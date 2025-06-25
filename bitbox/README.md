@@ -1,17 +1,30 @@
-# Welcome to your Expo app 👋
-
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
-## Get started
+### NOTICE
+This application is dockorized. you can build and run this app seperate from the backend using the dockerfile in this directory.
+
+### Running ONLY the react-frontend docker image
+**If you would like to build and run the docker image for the front end WITHOUT the backend:**
+*Move to the directory with the dockerfile.*
+1. Build the dockerfile
+   ```bash
+   sudo docker build -t bit-front .
+   ```
+2. Run the newly built image
+   ```bash
+   sudo docker run bit-front
+   ```
+
+### Running without docker
+You can run this application on your system without docker for testing and development using these steps.
+If you are only trying to run the application with the back-end, DO NOT DO THIS, use the docker-compose.yaml file instead.
 
 1. Install dependencies
-
    ```bash
    npm install
    ```
 
 2. Start the app
-
    ```bash
    npx expo start
    ```
@@ -24,27 +37,3 @@ In the output, you'll find options to open the app in a
 - [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.

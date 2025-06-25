@@ -2,15 +2,10 @@ services:
   db:
     image: postgres:16-alpine
     restart: always # Always restart if db crashes
-    environment:
-      # envirnment variables
+    environment: # Env variables
       POSTGRES_DB: bitbox
       POSTGRES_USER: defaultbit
       POSTGRES_PASSWORD: password
-    #volumes:
-      #- db_data: postgresql/data # Add a directory path where you would like to store db data.
-    #ports:
-    # Add port mapping here
 
   # Python backend service
   backend:
@@ -18,16 +13,21 @@ services:
     container_name: "python_backend"
     ports:
       - "5000:5000"
-    environment:
-      # Envirnment variables
+    environment: # Env variables
       DB_HOST: db
       DB_NAME: bitbox
       DB_USER: defaultbit # username for db
       DB_PASSWORD: password # Password for db
       DB_PORT: 5432
       DB_SETUP_STAT: 0
-      #volumes:
-      # Add volume to store data if needed.
-    #command: "python main.py"  # Add commands to be run at container startup
     depends_on:
       - db
+  
+  # React native front end serverice
+  frontend:
+    build: ./bitbox/ # Path to front end dockerfile
+    container_name: "react_frontend"
+    ports:
+      - "8081:8081"
+    depends_on:
+      - backend
