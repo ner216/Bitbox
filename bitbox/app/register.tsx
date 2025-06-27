@@ -80,7 +80,7 @@ export default function Register() {
                 />
             </Animated.View>
             {/*So this is for the mascot image*/}
-            <Animated.Image source={require("../assets/BitBox_Main_Logo-removebg-preview.png")}
+            <Animated.Image source={require("../assets/Bitbox_logo.png")}
                             style={styles.logo}
                             entering={FadeInUp.duration(1000).springify()}
             />

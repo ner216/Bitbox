@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { View, Text, FlatList, ScrollView, TouchableOpacity, StyleSheet, Image, Animated } from "react-native";
-import { Link } from "expo-router";
+//import { Link } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useLocalSearchParams, useRouter } from "expo-router";
 // Images to test the cover
 const playlistCovers = [
     "https://celebmix.com/wp-content/uploads/2023/04/alan-walker-takes-it-back-to-the-beginning-with-his-new-single-dreamer-which-pays-homage-to-his-breakthrough-hits-faded-and-alone-01-scaled.jpg",
@@ -10,6 +11,9 @@ const playlistCovers = [
     "https://yt3.googleusercontent.com/TzxKREFGZv5Y5gC6Xfn6tBmZaxvH5drZkb85nlsOGz8ZS7JP5cH9Eq7RojqzMeR4lEP8X31VdA=s160-c-k-c0x00ffffff-no-rj",
     "https://yt3.googleusercontent.com/ytc/AIdro_loWQXLsqV3P69g6rJcCH-pddw2GiF7HvoMWXuLOsRLLw=s160-c-k-c0x00ffffff-no-rj"
 ]
+const router = useRouter(); // Move over to router from Link
+
+
 export default function Home() {
     // These are for the feature one
     const [featured, setFeatured] = useState([
@@ -130,11 +134,15 @@ export default function Home() {
                 <Text style={styles.greeting}>Welcome to Bitbox!</Text>
                 {/*This is for the account button which would go back to the account page but still
                 waiting for it */}
-                <Link href={"/AccountScreen"}>
-                    <TouchableOpacity style={styles.accountButton}>
-                        <Text style={styles.accountIcon}>👤</Text>
-                    </TouchableOpacity>
-                </Link>
+                <TouchableOpacity 
+                    style={styles.accountButton}
+                    onPress={() => router.push({
+                        pathname: "/AccountScreen",
+                        params: { userId: userId }
+                    })}
+                    >
+                    <Text style={styles.accountIcon}>👤</Text>
+                </TouchableOpacity>
             </View>
 
             {/* This is  Featured Playlists */}
@@ -162,18 +170,14 @@ export default function Home() {
                 renderItem={({ item }) => (
                     <View style={styles.playlistHome}>
                         {/*// We use pahtname because now we click on the playlist we got different pages*/}
-                        <Link
-                            href={{
-                                pathname: "/playlist/[playlistID]",
-                                params: { playlistID: item.id }
-                            }}
-                        >
-                            <TouchableOpacity style={styles.playlistRow} activeOpacity={0.7}>
-                                <Image source={{ uri: item.cover }} style={styles.playlistImg} />
-                                <Text style={styles.playlistName}>{item.name}</Text>
-                                {/* This is to prevent the delete button to trigger the navigation */}
-                            </TouchableOpacity>
-                        </Link>
+                        <TouchableOpacity 
+                            style={styles.playlistRow} activeOpacity={0.7}
+                            onPress={() => router.replace(`/playlist/${item.id}`)}   
+                            >
+                            <Image source={{ uri: item.cover }} style={styles.playlistImg} />
+                            <Text style={styles.playlistName}>{item.name}</Text>
+                            {/* This is to prevent the delete button to trigger the navigation */}
+                        </TouchableOpacity>
                         <TouchableOpacity
                             style={styles.deleteButton}
                             onPress={(e) => {
@@ -195,11 +199,15 @@ export default function Home() {
 
             {/* Searching for music but waiting for the backend */}
             <View style={styles.bottomRow}>
-                <Link href={"/SearchScreen"} asChild>
-                    <TouchableOpacity style={styles.bottomNavButton}>
-                        <Text style={styles.bottomNavText}>🔍 Search</Text>
-                    </TouchableOpacity>
-                </Link>
+                <TouchableOpacity 
+                style={styles.bottomNavButton}
+                onPress={() => router.push({
+                    pathname: "/SearchScreen",
+                    params: { userId: userId }
+                })}
+                >
+                    <Text style={styles.bottomNavText}>🔍 Search</Text>
+                </TouchableOpacity>
             </View>
         </View>
     );

@@ -21,7 +21,9 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/Bitbox_logo.png",
+      "name": "Bitbox",
+      "title": "Bitbox"
     },
     "plugins": [
       "expo-router",

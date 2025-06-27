@@ -146,16 +146,16 @@ class APIRoutes:
 
         # This route PASSED tests performed by Nolan
         # Get a song audio file from the backend given a file name.
-        @api.route('/music/<filename>')
-        def serve_music(filename):
+        @api.route('/music/<string:filename>')
+        def serve_music(filename:str):
             try:
-                return send_from_directory("app/db/music/", filename, as_attachment=False)
+                return send_from_directory("db/music/", filename, as_attachment=False)
             except FileNotFoundError:
                 print("[ERROR] Unable to find music file! [routes::serve_music]")
-                return
+                return None
             except Exception as e:
                 print(f"[ERROR] Unable to send music file! [routes::serve_music]\n Err: {e}")
-                return
+                return None
 
 
         # This route PASSED tests performed by Nolan

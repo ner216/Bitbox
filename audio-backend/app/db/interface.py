@@ -174,10 +174,9 @@ def scan_music_files():
 
     for song in os.listdir(MUSIC_DIRECTORY):
         if ".mp3" in song:
-            file_url = f"app/db/music/{song}"
             metadata = read_metadata(MUSIC_DIRECTORY + song)
             # Create tuple of parameters
-            params = (metadata["title"], metadata["artist"], metadata["genre"], int(metadata["duration_sec"]), file_url, song_dictionary[song])
+            params = (metadata["title"], metadata["artist"], metadata["genre"], int(metadata["duration_sec"]), song, song_dictionary[song])
             try:
                 curr.execute(sql_query, params)
                 total_songs_loaded += 1

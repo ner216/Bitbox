@@ -2,10 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Image, Pressable, StyleSheet, Platform, TouchableOpacity } from 'react-native';
 import { Audio } from 'expo-av';
 import axios from 'axios';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 
+//Base URL for the backend
 const BASE_URL = 'http://127.0.0.1:5000';
 
+//Converts milliseconds to minutes and seconds for the slider bar
 const formatTime = (millis: number) => {
     const totalSeconds = Math.floor(millis / 1000);
     const minutes = Math.floor(totalSeconds / 60);
@@ -14,6 +16,10 @@ const formatTime = (millis: number) => {
 };
 
 export default function MusicScreen() {
+    //Gets the song ID from routing
+    const { songId } = useLocalSearchParams();
+
+    //React state to manage data, the audio objects, and playback stuff
     const [song, setSong] = useState<any>(null);
     const [sound, setSound] = useState<Audio.Sound | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -21,45 +27,72 @@ export default function MusicScreen() {
     const [position, setPosition] = useState(0);
     const isSeeking = useRef(false);
 
+    //Gets the song once the screen loads
     useEffect(() => {
         const fetchSong = async () => {
             try {
-                const response = await axios.get(`${BASE_URL}/songs/1`);
-                const songData = response.data;
-                setSong(songData);
+                //Calls to the backend to get the song data
+                const response = await axios.get(`${BASE_URL}/songs/${songId}`);
+                const songArray = response.data;
 
-                const audioUri = `${BASE_URL}/music/${songData.audio_file_url}`;
+                //Sets the song data
+                const songObject = {
+                    id: songArray[0],
+                    title: songArray[1],
+                    artist: songArray[2],
+                    genre: songArray[3],
+                    duration: songArray[4],
+                    audio_file_url: songArray[5],
+                    audio_file_name: songArray[6],
+                };
 
+                setSong(songObject);
+
+                const filename = songObject.audio_file_url;
+                const audioUri = `${BASE_URL}/music/${filename}`;
+
+                //Used for troubleshooting the URL
+                console.log("Audio URI:", audioUri);
+
+                //Loads sound into memory, false makes it so it doesn't play right away
                 const { sound } = await Audio.Sound.createAsync(
                     { uri: audioUri },
-                    { shouldPlay: false },
-                    onPlaybackStatusUpdate
+                    { shouldPlay: false }
                 );
 
+                //Playback status updates
+                sound.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate);
+
+                //Stores the sound object in a state
                 setSound(sound);
-            } catch (error) {
-                console.error('Error loading song:', error);
+            } catch (err) {
+                console.error("Error loading song:", err);
             }
         };
 
+
+        //Unloads the song when it's over
         fetchSong();
         return () => {
             sound?.unloadAsync();
         };
     }, []);
 
+    //Updates the position of the slider when the song is going
     const onPlaybackStatusUpdate = (status: any) => {
         if (!status.isLoaded || isSeeking.current) return;
         setPosition(status.positionMillis);
         setDuration(status.durationMillis || 1);
     };
 
+    //This is the play and pause function
     const togglePlayback = async () => {
         if (!sound) return;
         isPlaying ? await sound.pauseAsync() : await sound.playAsync();
         setIsPlaying(!isPlaying);
     };
 
+    //This skips around the song when you move the slider
     const onSliderChange = async (value: number) => {
         if (!sound) return;
         isSeeking.current = true;
@@ -69,21 +102,33 @@ export default function MusicScreen() {
         isSeeking.current = false;
     };
 
+    //Using the BitBox logo as album art, dynamic album art was out of the scope of the project
     return (
         <View style={styles.container}>
             <Image
-                source={require('../assets/BitBox_Main_Logo-removebg-preview.png')}
+                source={require('../assets/Bitbox_logo.png')}
                 style={styles.albumArt}
             />
 
+            {/*JSX code for the back button*/}
+            <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => router.replace("/home")}
+            >
+                <Text style={styles.backButtonText}>← Back</Text>
+            </TouchableOpacity>
+
+            {/*Makes the song show '...' when not playing anything*/}
             <Text style={styles.title}>{song?.title || '...'}</Text>
             <Text style={styles.artist}>{song?.artist || '...'}</Text>
 
+            {/*Does the time stamps on the sides of the slider*/}
             <View style={styles.timeRow}>
                 <Text style={styles.timestamp}>{formatTime(position)}</Text>
                 <Text style={styles.timestamp}>-{formatTime(duration - position)}</Text>
             </View>
 
+            {/*Changes the UI around for mobile, mobile slider still in progress*/}
             {Platform.OS === 'web' ? (
                 <input
                     type="range"
@@ -97,18 +142,21 @@ export default function MusicScreen() {
                 <Text style={{ color: 'white' }}>Mobile slider placeholder</Text>
             )}
 
+            {/*The controls for the play/pause, fast forward, rewind buttons*/}
             <View style={styles.controls}>
                 <Pressable style={styles.controlButton} onPress={() => {}}>
                     <Image
-                        source={require('../assets/BitBox_Main_Logo-removebg-preview.png')}
+                        source={require('../assets/Bitbox_logo.png')}
                         style={styles.logoIcon}
                     />
                 </Pressable>
 
+                {/*Rewind button*/}
                 <Pressable style={styles.controlButton}>
                     <Text style={styles.controlSymbol}>⏮</Text>
                 </Pressable>
 
+                {/*The play/pause button, changes when playing or paused, and grayed out when no song is available*/}
                 <Pressable
                     onPress={togglePlayback}
                     style={({ pressed }) => [
@@ -120,12 +168,9 @@ export default function MusicScreen() {
                     <Text style={styles.controlSymbol}>{isPlaying ? '⏸' : '▶'}</Text>
                 </Pressable>
 
+                {/*Fast forward button*/}
                 <Pressable style={styles.controlButton}>
                     <Text style={styles.controlSymbol}>⏭</Text>
-                </Pressable>
-
-                <Pressable style={styles.controlButton}>
-                    <Text style={styles.controlSymbol}>{"<"}</Text>
                 </Pressable>
 
             </View>
@@ -133,6 +178,7 @@ export default function MusicScreen() {
     );
 }
 
+//Style sheet for all the buttons
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -140,6 +186,19 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'flex-start',
         paddingTop: 60,
+    },
+    backButton: {
+        backgroundColor: "#191970",
+        position: 'absolute',
+        top: 40,
+        left: 20,
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        borderRadius: 6,
+    },
+    backButtonText: {
+        color: '#fff',
+        fontSize: 18,
     },
     albumArt: {
         width: 250,
