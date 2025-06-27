@@ -48,11 +48,7 @@ export default function MusicScreen() {
 
                 setSong(songObject);
 
-                {/*Gets the file name to build the URL
-                I ran into some trouble here due to the routing structure making the URL look like
-                 /music/app/db/music/<filename> when flask expects it to look like just music/<filename>
-                  So this cuts out the extra app/db/music to make it pick it up*/}
-                const filename = songObject.audio_file_url.split('/').pop();
+                const filename = songObject.audio_file_url;
                 const audioUri = `${BASE_URL}/music/${filename}`;
 
                 //Used for troubleshooting the URL
@@ -110,14 +106,14 @@ export default function MusicScreen() {
     return (
         <View style={styles.container}>
             <Image
-                source={require('../assets/BitBox_Main_Logo-removebg-preview.png')}
+                source={require('../assets/Bitbox_logo.png')}
                 style={styles.albumArt}
             />
 
             {/*JSX code for the back button*/}
             <TouchableOpacity
                 style={styles.backButton}
-                onPress={() => router.replace("/SearchScreen")}
+                onPress={() => router.replace("/home")}
             >
                 <Text style={styles.backButtonText}>← Back</Text>
             </TouchableOpacity>
@@ -150,7 +146,7 @@ export default function MusicScreen() {
             <View style={styles.controls}>
                 <Pressable style={styles.controlButton} onPress={() => {}}>
                     <Image
-                        source={require('../assets/BitBox_Main_Logo-removebg-preview.png')}
+                        source={require('../assets/Bitbox_logo.png')}
                         style={styles.logoIcon}
                     />
                 </Pressable>

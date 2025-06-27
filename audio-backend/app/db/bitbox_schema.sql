@@ -36,3 +36,6 @@ CREATE TABLE PlaylistSongs (
 );
 
 CREATE INDEX idx_playlistsongs_song_id ON PlaylistSongs (song_id);
+
+-- Add test user into database
+INSERT INTO users (username, password) VALUES ('test', '123');
