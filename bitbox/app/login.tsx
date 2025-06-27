@@ -95,7 +95,7 @@ export default function Index() {
                 />
             </Animated.View>
             {/*Get the bit box image*/}
-            <Animated.Image source={require("../assets/BitBox_Main_Logo-removebg-preview.png")}
+            <Animated.Image source={require("../assets/Bitbox_logo.png")}
                             style={styles.logo}
                             entering={FadeInUp.duration(1000).springify()}
             />

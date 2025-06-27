@@ -6,7 +6,10 @@
       "@/*": [
         "./*"
       ]
-    }
+    },
+    "jsx": "react",
+    "target": "es2015",
+    "lib": ["dom"]
   },
   "include": [
     "**/*.ts",
