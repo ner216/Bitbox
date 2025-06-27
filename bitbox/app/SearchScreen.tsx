@@ -3,12 +3,18 @@ import {
     View, TextInput, StyleSheet, Text, TouchableOpacity, FlatList, Image
 } from 'react-native';
 import { router } from 'expo-router';
+import axios from 'axios';
+
+const API_BASE_URL = "http://127.0.0.1:5000";
 
 export default function SearchScreen() {
-    const [query, setQuery] = useState('');
     const [playlists, setPlaylists] = useState([]);
     const [filtered, setFiltered] = useState([]);
+    const [item, setItem] = useState(null)
+    const [searchName, setSearchName] = useState("")
 
+    //Gather playlist information per user account.
+    //Needed to add a searched song to a playlist.
     useEffect(() => {
         const fetchPlaylists = async () => {
             try {
@@ -22,15 +28,31 @@ export default function SearchScreen() {
         fetchPlaylists();
     }, []);
 
-    useEffect(() => {
-        const lower = query.toLowerCase();
-        setFiltered(
-            playlists.filter((p) => p.name.toLowerCase().includes(lower))
-        );
-    }, [query, playlists]);
+    // GET request -- fetch a searched song.
+    const fetchSongs = async() => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/songs/${searchName}/search`);
+            const formattedResponse = [{
+                id: response.data[0].toString(),    // Flatlist object expects string objects(props)
+                title: response.data[1],
+                artist: response.data[2],
+                genre: response.data[3],
+                durationSec: response.data[4].toString(),   // Flatlist object expects string objects(props)
+                audioFileName: response.data[5],
+                similarFileName: response.data[6]
+            }];
+            console.log(formattedResponse); // Show backend response for debugging
+            setFiltered(formattedResponse); // Must be an array to be used in setFiltered()
+            console.log(`Fetched ${searchName} successfully!`);
+        }
+        catch (err) {
+            console.error(`Error fetching ${searchName}`, err);
+        }
+    }
 
     return (
         <View style={styles.container}>
+            {/*JSX code for the back button*/}
             <TouchableOpacity
                 style={styles.backButton}
                 onPress={() => router.replace("/home")}
@@ -38,34 +60,41 @@ export default function SearchScreen() {
                 <Text style={styles.backButtonText}>← Back</Text>
             </TouchableOpacity>
 
+            {/*JSX code for the search button*/}
+            <TouchableOpacity
+                style={styles.searchButton}
+                onPress={() => fetchSongs()}
+            >
+                <Text style={styles.searchButtonText}>Search</Text>
+            </TouchableOpacity>
+
             <Text style={styles.title}>Search Music</Text>
             <TextInput
                 style={styles.input}
                 placeholder="Search for playlists..."
                 placeholderTextColor="#999"
-                value={query}
-                onChangeText={setQuery}
+                value={searchName}
+                onChangeText={setSearchName}
             />
 
-            {query ? (
+            {searchName ? (
                 <FlatList
                     data={filtered}
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }) => (
                         <TouchableOpacity
                             style={styles.resultItem}
-                            onPress={() => router.push(`/playlist/${item.id}`)}
+                            onPress={() => router.push({
+                                pathname: "/MusicPlayer/",
+                                params: { songId: item.id }
+                            })}
                         >
-                            <Image
-                                source={{ uri: item.cover }}
-                                style={styles.resultImage}
-                            />
-                            <Text style={styles.resultText}>{item.name}</Text>
+                            <Text style={styles.resultText}>{item.title}</Text>
                         </TouchableOpacity>
                     )}
                 />
             ) : (
-                <Text style={styles.placeholder}>Try typing something above</Text>
+                <Text style={styles.placeholder}>Nothing yet!</Text>
             )}
         </View>
     );
@@ -73,15 +102,19 @@ export default function SearchScreen() {
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: '#000',
+        backgroundColor: '#6495ed',
         flex: 1,
         paddingTop: 80,
         paddingHorizontal: 20,
     },
     backButton: {
+        backgroundColor: "#191970",
         position: 'absolute',
         top: 40,
         left: 20,
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        borderRadius: 6,
     },
     backButtonText: {
         color: '#fff',
@@ -102,6 +135,19 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#444',
     },
+    searchButton: {
+        backgroundColor: "#191970",
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        borderRadius: 6,
+        alignItems: "right",
+        marginLeft: "auto", // Pushes it as far right as possible
+    },
+    searchButtonText: {
+        color: "#fff",
+        fontWeight: "bold",
+        fontSize: 13,
+    },
     placeholder: {
         marginTop: 20,
         color: 'white',
@@ -110,10 +156,11 @@ const styles = StyleSheet.create({
     resultItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#2222ff',
+        backgroundColor: '#191970',
         padding: 10,
         borderRadius: 10,
         marginTop: 10,
+        height: 40,
     },
     resultImage: {
         width: 48,

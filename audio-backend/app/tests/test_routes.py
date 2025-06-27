@@ -61,6 +61,7 @@ def test_search_song(song_name: str): # PASSED
         # Check if the request was successful (status code 200)
         if response.status_code == 200:
             print(f"Successfully retrieved songs for '{song_name}'.")
+            print(f"Response: {response.json()}")
             return response.json()
         elif response.status_code == 404:
             print(f"No songs found with the name '{song_name}' (Status: 404 Not Found).")
