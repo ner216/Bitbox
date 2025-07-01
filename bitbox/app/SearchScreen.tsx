@@ -1,21 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import {
-    View, TextInput, StyleSheet, Modal, Text, TouchableOpacity, FlatList, Image
+    View, 
+    TextInput, 
+    StyleSheet, 
+    Text, 
+    TouchableOpacity, 
+    FlatList, 
+    Image, 
+    Modal, 
+    ModalBody, 
+    ModalFooter, 
+    ModalHeader
 } from 'react-native';
-import { router } from 'expo-router';
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter, router } from "expo-router";
 import axios from 'axios';
 import { Audio } from 'expo-av';
 
 const API_BASE_URL = "http://127.0.0.1:5000";
 
 export default function SearchScreen() {
+    // Stores all playlists that a user has
     const [playlists, setPlaylists] = useState([]);
-    const [filtered, setFiltered] = useState([]);
+    // Store song data results from search
+    const [searchResultData, setSearchResultData] = useState([]);
+    // Stores the search result song info
     const [item, setItem] = useState(null);
+    // Stores the search bar query
     const [searchName, setSearchName] = useState("");
+    // Selected sound audio to be played
     const [sound, setSound] = useState<Audio.Sound | null>(null);
+    // Store song info for the song audio to be played
     const [isPlaying, setIsPlaying] = useState(false);
+    // Store status of the 'add to playlist' Modal menu
+    const [openPlaylistModal, setOpenPlaylistModal] = useState(false);
+    // Store status of the similar song Modal menu
+    const [openSimilarModal, setOpenSimilarModal] = useState(false);
+    // Used to store similar song info
+    const [similarSongs, setSimilarSongs] = useState([])
+    // Used for adding a song from the search results to a playlist
+    const [selectedSong, setSelectedSong] = useState([])
+
 
     //Gets the user ID from routing
     const { userId } = useLocalSearchParams();
@@ -25,9 +49,12 @@ export default function SearchScreen() {
     useEffect(() => {
         const fetchPlaylists = async () => {
             try {
-                const response = await fetch("http://127.0.0.1:5000/playlists");
-                const data = await response.json();
-                setPlaylists(data);
+                const response = await axios.get(`${API_BASE_URL}/users/${userId}/playlists`)
+                // Set map object of playlist info to Playlist hook
+                setPlaylists(response.data);
+
+                // Print formattedResponse data for debugging
+                console.log("PLAYLIST INFO: " + response.data)
             } catch (error) {
                 console.error("Error fetching playlists:", error);
             }
@@ -36,41 +63,61 @@ export default function SearchScreen() {
     }, []);
 
     // GET request -- fetch a searched song.
-    const fetchSongs = async() => {
+    // Use searchName hook for search data for request
+    async function fetchSearchResults() {
         try {
             const response = await axios.get(`${API_BASE_URL}/songs/${searchName}/search`);
-            const formattedResponse = [{
-                id: response.data[0].toString(),    // Flatlist object expects string objects(props)
-                title: response.data[1],
-                artist: response.data[2],
-                genre: response.data[3],
-                durationSec: response.data[4].toString(),   // Flatlist object expects string objects(props)
-                audioFileName: response.data[5],
-                similarFileName: response.data[6]
-            }];
+            
+            // Add search results to searchResultData
+            setSearchResultData(response.data); // Must be an array to be used in setSearchResultData()
+            console.log(`Fetched results for ${searchName} successfully!`);
+        }
+        catch (err) {
+            console.error(`Error fetching ${searchName}`, err);
+        }
+    }
 
-            console.log(formattedResponse); // Show backend response for debugging
-            setFiltered(formattedResponse); // Must be an array to be used in setFiltered()
-            console.log(`Fetched ${searchName} successfully!`);
-
-
-            const filename = response.data[5]; // Get audio file name from response
-            const audioUri = `${API_BASE_URL}/music/${filename}`;
-
-            //Used for troubleshooting the URL
-            console.log("Audio URI:", audioUri);
-
+    // GET request -- fetch the song audio file from the backend
+    // Uses the 'selectedSong' hook to get song information for audio file request
+    async function fetchSound() {
+        const audioUri = `${API_BASE_URL}/music/${selectedSong.audio_file_url}`;
+        try {
             //Loads sound into memory, false makes it so it doesn't play right away
-            const { sound } = await Audio.Sound.createAsync(
-                { uri: audioUri },
-                { shouldPlay: false }
-            );
+                const { sound } = await Audio.Sound.createAsync(
+                    { uri: audioUri },
+                    { shouldPlay: false }
+                );
 
             //Stores the sound object in a state
             setSound(sound);
         }
         catch (err) {
-            console.error(`Error fetching ${searchName}`, err);
+            console.error(`Error loading song audio for ${selectedSong.title}`)
+        }
+        
+    }
+
+    // GET request -- get similar songs
+    async function getSimilar(songId: number) {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/similar/${songId}`);
+
+            setSimilarSongs(response.data);
+        }
+        catch (err) {
+            console.error(`Error fetching ${songId}`, err);
+        }
+
+        return null;
+    }
+
+    // POST request -- Add song to playlist
+    async function addSongToPlaylist(playlist_id: number) {
+        try {
+            const response = await axios.post(`${API_BASE_URL}/playlist/${playlist_id}/add_song/${selectedSong.song_id}`);
+        }
+        catch (err) {
+            console.error(`Error adding song(${selectedSong.song_id}) to playlist(${playlist_id})`)
         }
     }
 
@@ -94,7 +141,7 @@ export default function SearchScreen() {
             {/*JSX code for the search button*/}
             <TouchableOpacity
                 style={styles.searchButton}
-                onPress={() => fetchSongs()}
+                onPress={() => fetchSearchResults()}
             >
                 <Text style={styles.searchButtonText}>Search</Text>
             </TouchableOpacity>
@@ -110,13 +157,12 @@ export default function SearchScreen() {
 
             {searchName ? (
                 <FlatList
-                    data={filtered}
-                    keyExtractor={(item) => item.id}
+                    data={searchResultData}
+                    keyExtractor={(item) => item.song_id}
                     renderItem={({ item }) => (
                         <View // Main component for the row
                             style={styles.resultItem}
                         >
-
                             {/* Song title */}
                             <Text style={styles.resultText}>{item.title}</Text>
 
@@ -126,6 +172,11 @@ export default function SearchScreen() {
                                 <TouchableOpacity
                                     style={styles.resultActionButton}
                                     onPress={() => {
+                                        // Select the song in flatlist
+                                        setSelectedSong(item)
+                                        // Load audio file
+                                        fetchSound()
+                                        // Play song
                                         togglePlayback()
                                     }}
                                 >
@@ -136,7 +187,9 @@ export default function SearchScreen() {
                                 <TouchableOpacity
                                     style={styles.resultActionButton}
                                     onPress={() => {
-
+                                        setSelectedSong(item)
+                                        setOpenPlaylistModal(true)
+                                        
                                     }}
                                 >
                                     <Text style={styles.resultActionButtonText}>Add</Text>
@@ -146,7 +199,8 @@ export default function SearchScreen() {
                                 <TouchableOpacity
                                     style={styles.resultActionButton}
                                     onPress={() => {
-
+                                        getSimilar(item.song_id)
+                                        setOpenSimilarModal(true)
                                     }}
                                 >
                                     <Text style={styles.resultActionButtonText}>Similar</Text>
@@ -158,9 +212,127 @@ export default function SearchScreen() {
                         </View>
                     )}
                 />
+
             ) : (
                 <Text style={styles.placeholder}>Nothing yet!</Text>
             )}
+
+            {/* Modal Menu for playlist selection */}
+            <Modal
+                animationType="fade"
+                visible={openPlaylistModal}
+                transparent={true}
+                onRequestClose={() => setOpenPlaylistModal(false)}
+            >
+                <View style={styles.centeredView}>
+                    <View style={styles.modalView}>
+                        {/* Modal Menu title */}
+                        <Text style={styles.modalTitle}>Add to Playlist</Text>
+
+                        {/* Playlist flatlist */}
+                        {playlists ? (
+                            <FlatList
+                                data={playlists}
+                                keyExtractor={(item) => item.playlist_id}
+                                renderItem={({ item }) => (
+                                    <View style={styles.resultItem}>
+                                            <Text style={styles.resultText}>{item.name}</Text>
+                                            <View style={styles.searchRowButtonContainer}>
+                                                {/* Add song to playlist button */}
+                                                <TouchableOpacity
+                                                    style={styles.resultActionButton}
+                                                    onPress={() => {
+                                                        addSongToPlaylist(item.playlist_id)
+                                                    }}
+                                                >
+                                                    <Text style={styles.resultActionButtonText}>Add</Text>
+                                                </TouchableOpacity>
+                                            </View>
+                                    </View>
+                                )}
+                            />
+                        ) : (
+                            <Text>No Playlists</Text>
+                        )}
+
+                        {/* Modal Menu cancel button */}
+                        <TouchableOpacity
+                            style={styles.cancelButton}
+                            onPress={() => setOpenPlaylistModal(false)}
+                            >
+                            <Text style={styles.buttonText}>Cancel</Text>
+                        </TouchableOpacity>
+
+
+                    </View>
+                </View>
+            </Modal>
+            
+            {/* Modal Menu to show similar songs */}
+            <Modal
+                animationType="fade"
+                visible={openSimilarModal}
+                transparent={true}
+                onRequestClose={() => setOpenSimilarModal(false)}
+            >
+                <View style={styles.centeredView}>
+                    <View style={styles.modalView}>
+                        {/* Modal Menu title */}
+                        <Text style={styles.modalTitle}>Similar Tunes</Text>
+
+                        {/* Playlist flatlist */}
+                        {similarSongs ? (
+                            <FlatList
+                                data={similarSongs}
+                                keyExtractor={(item) => item.song_id}
+                                renderItem={({ item }) => (
+                                    <View style={styles.resultItem}>
+                                            <Text style={styles.resultText}>{item.title}</Text>
+                                            <View style={styles.searchRowButtonContainer}>
+                                                {/* Add song to playlist button */}
+                                                <TouchableOpacity
+                                                    style={styles.resultActionButton}
+                                                    onPress={() => {
+                                                        // Select the song in flatlist
+                                                        setSelectedSong(item)
+                                                        // Load audio file
+                                                        fetchSound()
+                                                        // Play song
+                                                        togglePlayback()
+                                                    }}
+                                                >
+                                                    <Text style={styles.resultActionButtonText}>Play</Text>
+                                                </TouchableOpacity>
+
+                                                {/* Play song button */}
+                                                <TouchableOpacity
+                                                    style={styles.resultActionButton}
+                                                    onPress={() => {
+                                                        //addToPlaylist()
+                                                    }}
+                                                >
+                                                    <Text style={styles.resultActionButtonText}>Add</Text>
+                                                </TouchableOpacity>
+                                            </View>
+                                    </View>
+                                )}
+                            />
+                        ) : (
+                            <Text>No Songs</Text>
+                        )}
+
+                        {/* Modal Menu cancel button */}
+                        <TouchableOpacity
+                            style={styles.cancelButton}
+                            onPress={() => setOpenSimilarModal(false)}
+                            >
+                            <Text style={styles.buttonText}>Cancel</Text>
+                        </TouchableOpacity>
+
+                    </View>
+                </View>
+            </Modal>
+
         </View>
     );
 }
@@ -185,6 +357,19 @@ const styles = StyleSheet.create({
     },
     // Style the back button text
     backButtonText: {
+        color: '#fff',
+        fontSize: 18,
+    },
+    cancelButton: {
+        backgroundColor: "#191970",
+        //position: 'absolute',
+        //top: 40,
+        //left: 20,
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+        borderRadius: 6,
+    },
+    buttonText: {
         color: '#fff',
         fontSize: 18,
     },
@@ -270,4 +455,30 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 18,
     },
+    modalTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    color: '#333',
+    },
+    modalText: {
+        marginBottom: 20,
+        textAlign: 'center',
+        fontSize: 16,
+        color: '#555',
+    },
+    centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    },
+    modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    }
 });

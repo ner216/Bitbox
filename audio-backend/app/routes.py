@@ -173,15 +173,17 @@ class APIRoutes:
         # Get a list of songs that are similar to the given song ID
         @api.route('/similar/<int:song_id>', methods=['GET'])
         def get_similar_songs(song_id):
+            # Set this variable to change the # of similar songs returned
+            TOTAL_SIMILAR_SONGS = 5
             similar_song_list = []
 
             song = self.db.get_song_by_id(song_id)
-            for i in range(5):
-                similar_song_url = song[-1]
+            for _ in range(TOTAL_SIMILAR_SONGS):
+                similar_song_url = song["similar_file_url"]
                 similar_song_list.append(self.db.get_song_by_url(similar_song_url))
                 song = self.db.get_song_by_url(similar_song_url)
 
-            if len(similar_song_list) == 5:
+            if len(similar_song_list) == TOTAL_SIMILAR_SONGS:
                 return jsonify(similar_song_list), 200
             else:
                 return jsonify({"message": f"Unable to find similar for song ID {song_id}"}), 404

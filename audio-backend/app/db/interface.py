@@ -315,7 +315,18 @@ class db_interface(object):
                 params=(name,),
                 fetch_one=True
             )
-            return result
+
+            song_data = {
+                "song_id": result[0],
+                "title": result[1],
+                "artist": result[2],
+                "genre": result[3],
+                "duration": result[4],
+                "audio_file_url": result[5],
+                "similar_file_url": result[6]
+            }
+
+            return song_data
         except Exception as e:
             print(f"[ERROR] Unable find song [db_interface::get_song_by_name]\n Err: {e}")
             return []
@@ -329,8 +340,18 @@ class db_interface(object):
                 params=(url,),
                 fetch_one=True
             )
-            print(f"INTERFACE: {result}")
-            return result
+
+            song_data = {
+                "song_id": result[0],
+                "title": result[1],
+                "artist": result[2],
+                "genre": result[3],
+                "duration": result[4],
+                "audio_file_url": result[5],
+                "similar_file_url": result[6]
+            }
+
+            return song_data
         except Exception as e:
             print(f"[ERROR] Unable find song [db_interface::get_song_by_url]\n Err: {e}")
             return []
@@ -343,7 +364,18 @@ class db_interface(object):
                 params=(str(id),),
                 fetch_one=True
             )
-            return result
+
+            song_data = {
+                "song_id": result[0],
+                "title": result[1],
+                "artist": result[2],
+                "genre": result[3],
+                "duration": result[4],
+                "audio_file_url": result[5],
+                "similar_file_url": result[6]
+            }
+
+            return song_data
         except Exception as e:
             print(f"[ERROR] Unable find song [db_interface::get_song_by_id]\n Err: {e}")
             return []
@@ -383,7 +415,20 @@ class db_interface(object):
                 params=(str(id),),
                 fetch_all=True
             )
-            return result
+
+            all_playlists = []
+            playlist = {}
+
+            for i in range(len(result)):
+                playlist = {
+                    "user_id": result[i][0],
+                    "playlist_id": result[i][1],
+                    "name": result[i][2],
+                    "created_at": result[i][3]
+                }
+                all_playlists.append(playlist)
+
+            return all_playlists
         except Exception as e:
             print(f"[ERROR] Unable find playlists [db_interface::get_playlist_by_user_id]\n Err: {e}")
             return []
