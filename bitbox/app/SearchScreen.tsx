@@ -53,9 +53,8 @@ export default function SearchScreen() {
                 // Set map object of playlist info to Playlist hook
                 setPlaylists(response.data);
 
-                // Print formattedResponse data for debugging
-                console.log("PLAYLIST INFO: " + response.data)
-            } catch (error) {
+            } 
+            catch (error) {
                 console.error("Error fetching playlists:", error);
             }
         };
@@ -70,6 +69,8 @@ export default function SearchScreen() {
             
             // Add search results to searchResultData
             setSearchResultData(response.data); // Must be an array to be used in setSearchResultData()
+            console.log(searchResultData.map(item => item.song_id))
+            console.log(`PRINT SEARCHDATA: ${searchResultData[0]}`)
             console.log(`Fetched results for ${searchName} successfully!`);
         }
         catch (err) {
@@ -155,7 +156,7 @@ export default function SearchScreen() {
                 onChangeText={setSearchName}
             />
 
-            {searchName ? (
+            {searchResultData ? (
                 <FlatList
                     data={searchResultData}
                     keyExtractor={(item) => item.song_id}
@@ -318,7 +319,7 @@ export default function SearchScreen() {
                                 )}
                             />
                         ) : (
-                            <Text>No Songs</Text>
+                            <Text>No Similar Songs</Text>
                         )}
 
                         {/* Modal Menu cancel button */}

@@ -326,7 +326,7 @@ class db_interface(object):
                 "similar_file_url": result[6]
             }
 
-            return song_data
+            return [song_data]
         except Exception as e:
             print(f"[ERROR] Unable find song [db_interface::get_song_by_name]\n Err: {e}")
             return []
