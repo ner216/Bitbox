@@ -99,7 +99,8 @@ def test_create_playlist(user_id:int, playlist_name:str): # PASSED
 def test_similar_song(song_id:int): # PASSED
     response = requests.get(f"{BASE_URL}/similar/{song_id}")
     print("Similar Songs:")
-    print(response.json())
+    for song in response.json():
+        print(f"Song: {song}")
 
 
 def test_get_playlist_songs(playlist_id:int): # PASSED

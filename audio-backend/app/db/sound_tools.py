@@ -1,32 +1,53 @@
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.neighbors import NearestNeighbors
 from typing import Optional
 import os
 import json
 
 class sound_tools(object):
-    # Find the most similar song to a given song
-    def get_most_similar_song(self, query_song: str) -> Optional[str]:
-        all_vectors = self.load_vectors()
 
-        if query_song not in all_vectors:
-            return None
+    def get_most_similar_songs(self, query_song_url:str, top_results=5):
+        # Get dictionary of song urls to their respected vector arrays
+        song_embedding_dict = self.load_vectors()
+        # Create a list of song urls from dictionary
+        song_urls = list(song_embedding_dict.keys())
+        # Fit a NearestNeighbors model
+        # metric='cosine' uses 1 - cosine_similarity as distance
+        # (smaller distance means higher similarity)
+        embedding_matrix = np.array(list(song_embedding_dict.values()))
+        nn_model = NearestNeighbors(n_neighbors=top_results + 1, metric='cosine', algorithm='brute')
+        nn_model.fit(embedding_matrix)
 
-        query_vec = np.array(all_vectors[query_song]).reshape(1, -1)
-        best_match = None
-        best_score = -1
+        """
+        Finds similar songs using a pre-trained NearestNeighbors model.
+        """
+        if query_song_url not in song_urls:
+            print(f"Song '{query_song_url}' not found in embeddings.")
+            return []
 
-        for song_name, vector in all_vectors.items():
-            if song_name == query_song:
-                continue
-            candidate_vec = np.array(vector).reshape(1, -1)
-            score = cosine_similarity(query_vec, candidate_vec)[0][0]
-            if score > best_score:
-                best_score = score
-                best_match = song_name
+        query_embedding = np.array(song_embedding_dict[query_song_url]).reshape(1, -1)
 
+        # distances will be 1 - cosine_similarity
+        # indices will be the indices in embedding_matrix
+        distances, indices = nn_model.kneighbors(query_embedding)
 
-        return best_match
+        similar_songs = []
+        # Skip the first result as it's always the query song itself (distance 0)
+        for i in range(1, len(indices[0])):
+            index = indices[0][i]
+            
+            # Convert back to cosine similarity for better interpretation
+            # Use this if similarity values are needed for debugging
+            #distance = distances[0][i]
+            #similarity = 1 - distance
+            
+            similar_song_url = song_urls[index]
+            similar_songs.append(similar_song_url)
+            if len(similar_songs) >= top_results:
+                break
+                
+        return similar_songs
 
 
     # Used by get_most_similar_song()
