@@ -11,20 +11,27 @@ Bitbox is an online music web-app; engineered for those who prioritize the sound
 ### Software Requirements:
 > - Docker engine
 > - Python 3.9
+> - Linux system/WSL
+
+### Get required files:
+This project uses the VGGish pre-trained model by TensorFlow.
+- You can find this repository [HERE](https://github.com/tensorflow/models/tree/master)
+- You need to download the `vggish_model.ckpt` file from [HERE](https://github.com/tensorflow/models/blob/master/research/audioset/vggish/README.md)
+- You must add the downloaded `vggish_model.ckpt` file to `ai-logic-tools/models/vggish/`
+
+This project uses a standalone audio library for serving music. To add music to Bitbox:
+- Add your `.mp3` music files to the `audio-backend/app/db/music/` directory.
 
 ### Setting up AI features:
 
 *Run the following commands in the project directory*
-> 1. Add your vggish checkpoint file to `ai-logic-tools/models/vggish/`
->    - This file stores pre-trained data for the ai model.
-> 2. Add the music library to `audio-backend/app/db/music/`
-> 3. Create a **python 3.9** virtual environment in `ai-logic-tools/`
+> 1. Create a **python 3.9** virtual environment in `ai-logic-tools/`
 >    - Run: `python3.9 -m venv .venv`
-> 4. Activate virtual environment 
+> 2. Activate virtual environment 
 >    - Run: `. .venv/bin/activate`
-> 5. Install python modules with requirements file.
+> 3. Install python modules with requirements file.
 >    - Run: `.venv/bin/pip3 install -r requirements.txt`
-> 6. Generate the song match data file.
+> 4. Generate the song match data file.
 >    - Run: `.venv/bin/python3 find_similar_songs.py`
 
 ### Running the project:
@@ -53,39 +60,19 @@ This application consists of three parts;
 > The dockerfile for the audio-backend is located at `audio-backend/dockerfile`. 
 > The dockerfile for the front-end is located at `bitbox/dockerfile`.
 
-# Setup tips for Windows:
-*For running the front-end web-app seperate without a docker container:*
-> Download NVM from: https://github.com/coreybutler/nvm-windows/releases  
-> Then, run the `nvm-setup.exe` file. **Be sure to allow nvm to manage system path.**
-
-> To install Node.js, run:  
-> `nvm install lts`  
-> Then: `nvm use lts`
-
-> Download and install Java from: https://adoptium.net
-
-> Install Visual Studio Code: https://code.visualstudio.com/  
-> (Optional) Install Android Studio (for emulator use): https://developer.android.com/studio
-
-> Install Docker Desktop: https://www.docker.com/products/docker-desktop  
-> Enable WSL 2 integration during installation
-
-### (Optional) Run the mobile app:
-
-> Open the `android` folder in Android Studio  
-> Launch an emulator or connect a device  
-> Then run the app using Android Studio or:  
-> `npx react-native run-android`
-
 ### Setup on Windows(via Docker):
 
-> Open your **WSL terminal**, navigate to the project directory, and run:  
-> `sudo docker compose up`  
-> This will start all backend services (API, databases, etc.) automatically.
+> Using Ubuntu 24.04LTS in WSL, you can use the Docker snap package with `sudo snap install docker`.
+> Next, navigate to the project directory, and run: `sudo docker compose up`  
+> This will start all three containers(Postgres database, Python back-end, React front-end).
 
 > **Note:** The first time you run this, Docker will pull and build all necessary images — this may take several minutes.
 
 ---
+### How can I contribute to Bitbox?
+For contribution guidelines for the Bitbox repository, see the `contribute.md` file in the root of
+the Bitbox repository.
+
 
 ### Contact:
 

@@ -1,0 +1,26 @@
+Bitbox - NOTICE
+
+This project is licensed under the MIT License.
+A copy of the MIT License is provided in the LICENSE file at the root of this project.
+
+==============================================================================
+
+THIRD-PARTY COMPONENTS
+
+This project utilizes the following third-party components, which are subject to their respective licenses:
+
+1.  VGGish
+    Copyright (c) 2017 The TensorFlow Authors. All Rights Reserved.
+    Source: https://github.com/tensorflow/models/tree/master/research/audioset/vggish
+    License: Apache License, Version 2.0
+
+    A copy of the Apache License, Version 2.0, is available at:
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    This component is distributed under the terms of the Apache 2.0 License.
+    Original VGGish files may contain additional copyright and license notices within their headers,
+    which have been retained as required by the Apache 2.0 License.
+
+==============================================================================
+
+END OF NOTICES
