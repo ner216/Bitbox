@@ -2,8 +2,6 @@ import os
 import json
 import numpy as np
 import tensorflow as tf
-from typing import Optional
-from sklearn.metrics.pairwise import cosine_similarity
 
 # Vggish imports
 import vggish_scripts.vggish_input as  vggish_input

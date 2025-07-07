@@ -32,7 +32,7 @@ This project uses a standalone audio library for serving music. To add music to 
 > 3. Install python modules with requirements file.
 >    - Run: `.venv/bin/pip3 install -r requirements.txt`
 > 4. Generate the song match data file.
->    - Run: `.venv/bin/python3 find_similar_songs.py`
+>    - Run: `.venv/bin/python3 generate_vectors.py`
 
 ### Running the project:
 > In the root of the project directory, run: `sudo docker compose up`.
