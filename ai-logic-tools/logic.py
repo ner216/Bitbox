@@ -19,6 +19,9 @@ db_dir_path = os.path.join(current_dir, '..', 'audio-backend', 'app', 'db')
 # Normalize the path
 db_dir_path = os.path.abspath(db_dir_path)
 
+# Temp paths
+db_vector_file_path = os.path.join(current_dir, '..', 'audio-backend', 'app', 'db', 'vggish_vectors.json')
+
 
 class logic_tools(object):
     def __init__(self):
@@ -54,9 +57,9 @@ class logic_tools(object):
 
     # Used by get_most_similar_song()
     def load_vectors(self):   #reusable and safe to call from anywhere
-        if not os.path.exists(self.vectors_file):
-            raise FileNotFoundError(f"Vector file not found at {self.vectors_file}")
-        with open(self.vectors_file, "r") as f:
+        if not os.path.exists(db_vector_file_path):
+            raise FileNotFoundError(f"Vector file not found at {db_vector_file_path}")
+        with open(db_vector_file_path, "r") as f:
             return json.load(f)
         
 
@@ -83,10 +86,9 @@ class logic_tools(object):
                         if embedding:
                             features[file] = embedding
 
-        with open(self.vectors_file, 'w') as f:
+        with open(db_vector_file_path, 'w') as f:
             json.dump(features, f, indent=2)
-        print(f"Saved features to {self.vectors_file}")
-
+        print(f"Saved features to {db_vector_file_path}")
 
     # Used by process_directory()
     def extract_vggish_embedding(self, audio_path, sess, features_tensor, embedding_tensor, pproc):
