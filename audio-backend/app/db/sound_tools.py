@@ -25,7 +25,7 @@ class sound_tools(object):
                 best_score = score
                 best_match = song_name
 
-        print(f"BEST MATCH : {best_match}")
+
         return best_match
 
 

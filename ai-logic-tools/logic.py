@@ -25,34 +25,9 @@ db_vector_file_path = os.path.join(current_dir, '..', 'audio-backend', 'app', 'd
 
 class logic_tools(object):
     def __init__(self):
-        self.vectors_file = "models/vggish/vggish_vectors.json"
         self.checkpoint_path = "models/vggish/vggish_model.ckpt"
         self.pca_params_path = "models/vggish/vggish_pca_params.npz"
         self.audio_dir = f"{db_dir_path}/music"
-
-
-    
-    # Find the most similar song to a given song
-    def get_most_similar_song(self, query_song: str) -> Optional[str]:
-        all_vectors = self.load_vectors()
-
-        if query_song not in all_vectors:
-            return None
-
-        query_vec = np.array(all_vectors[query_song]).reshape(1, -1)
-        best_match = None
-        best_score = -1
-
-        for song_name, vector in all_vectors.items():
-            if song_name == query_song:
-                continue
-            candidate_vec = np.array(vector).reshape(1, -1)
-            score = cosine_similarity(query_vec, candidate_vec)[0][0]
-            if score > best_score:
-                best_score = score
-                best_match = song_name
-
-        return best_match
 
 
     # Used by get_most_similar_song()

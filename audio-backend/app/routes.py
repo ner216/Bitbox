@@ -169,7 +169,8 @@ class APIRoutes:
             else:
                 return jsonify({"message": f"No songs found for playlist ID {playlist_id} or playlist does not exist."}), 404
 
-
+        # This route PASSED tests performed by Nolan
+        # Get a list of similar songs given a song id
         @api.route('/similar/<int:song_id>', methods=['GET'])
         def get_similar_songs(song_id):
             tools = sound_tools()
