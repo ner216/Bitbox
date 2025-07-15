@@ -3,7 +3,7 @@ Use the instructions below to generate the `matched_songs.yaml` file
 which is used by Bitbox to find song recommendations.
 
 ## Setup Instructions:
-**REQUIRES PYTHON VERSION 3.9**
+**REQUIRES PYTHON VERSION 3.9.23**
 ### Create a virtual env here:
 >`python3 -m venv .venv`
 ### Activate:

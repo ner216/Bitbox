@@ -10,7 +10,7 @@ Bitbox is an online music web-app; engineered for those who prioritize the sound
 
 ### Software Requirements:
 > - Docker engine
-> - Python 3.9
+> - Python 3.9.23
 > - Linux system/WSL
 
 ### Get required files:
@@ -25,7 +25,7 @@ This project uses a standalone audio library for serving music. To add music to 
 ### Setting up AI features:
 
 *Run the following commands in the project directory*
-> 1. Create a **python 3.9** virtual environment in `ai-logic-tools/`
+> 1. Create a **python 3.9.23** virtual environment in `ai-logic-tools/`
 >    - Run: `python3.9 -m venv .venv`
 > 2. Activate virtual environment 
 >    - Run: `. .venv/bin/activate`
