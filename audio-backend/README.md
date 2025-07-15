@@ -8,7 +8,7 @@ Python backend application.
 - `app/db/music/` This is where music files for the Bitbox library are to be stored.
 - `app/tests/` This is where unit test modules and scripts are stored.
 ### Development Information:
-This application is developed using Python version `3.13`.
+This application is developed using Python version `3.12`.
 The app uses Flask for backend routes. You can find informationn on
 the backend api routes at `audio-backend/app/README.md`.
 
