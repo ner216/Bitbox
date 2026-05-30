@@ -1,6 +1,7 @@
 # app/routes.py
 
 from flask import Blueprint, request, jsonify, send_from_directory, abort
+from db.sound_tools import sound_tools
 from db.interface import db_interface  # Your DB interface class
 
 api = Blueprint('api', __name__)  # This stays global
@@ -167,34 +168,23 @@ class APIRoutes:
                 return jsonify(songs), 200
             else:
                 return jsonify({"message": f"No songs found for playlist ID {playlist_id} or playlist does not exist."}), 404
-            
 
         # This route PASSED tests performed by Nolan
-        # Get a list of songs that are similar to the given song ID
+        # Get a list of similar songs given a song id
         @api.route('/similar/<int:song_id>', methods=['GET'])
         def get_similar_songs(song_id):
-            # Set this variable to change the # of similar songs returned
-            TOTAL_SIMILAR_SONGS = 5
-            entry_count = 0 # increment until equal to TOTAL_SIMILAR_SONGS
-            used_urls = []
-            similar_song_list = []
+            tools = sound_tools()
+            result_song_list = []
 
-            song = self.db.get_song_by_id(song_id)
-            while entry_count < TOTAL_SIMILAR_SONGS:
-                similar_song_url = song["similar_file_url"]
-                if similar_song_url not in used_urls:
-                    similar_song_list.append(self.db.get_song_by_url(similar_song_url))
-                    used_urls.append(similar_song_url)
-                    entry_count = entry_count + 1
-                if similar_song_url in used_urls:
-                    print("[INFO] Breaking similar song loop to avoid infinite loop")
-                    break
-                song = self.db.get_song_by_url(similar_song_url)
-                print("LOOP: " + str(entry_count))
+            query_song = self.db.get_song_by_id(song_id)
+            query_song_file_url = query_song["audio_file_url"]
+            similar_song_url_list = tools.get_most_similar_songs(query_song_file_url)
 
-            if similar_song_list:
-                return jsonify(similar_song_list), 200
+            for similar_song in similar_song_url_list:
+                result_song_list.append(self.db.get_song_by_url(similar_song))
+            
+
+            if result_song_list:
+                return jsonify(result_song_list), 200
             else:
                 return jsonify({"message": f"Unable to find similar for song ID {song_id}"}), 404
-
-

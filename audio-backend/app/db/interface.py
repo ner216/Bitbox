@@ -155,7 +155,7 @@ def read_metadata(music_file_path:str) -> dict:
 
 def scan_music_files():
     total_songs_loaded = 0
-    sql_query = "INSERT INTO Songs (title,artist,genre,duration_seconds,audio_file_url,similar_song_url) VALUES (%s,%s,%s,%s,%s,%s);"
+    sql_query = "INSERT INTO Songs (title,artist,genre,duration_seconds,audio_file_url) VALUES (%s,%s,%s,%s,%s);"
 
     # Get connection
     conn = psycopg2.connect(
@@ -168,15 +168,17 @@ def scan_music_files():
     conn.autocommit = True
     curr = conn.cursor()
 
+    '''
     # Get song match dictionary
     with open('app/db/matched_songs.yaml', 'r') as file:
         song_dictionary = yaml.safe_load(file)
+    '''
 
     for song in os.listdir(MUSIC_DIRECTORY):
         if ".mp3" in song:
             metadata = read_metadata(MUSIC_DIRECTORY + song)
             # Create tuple of parameters
-            params = (metadata["title"], metadata["artist"], metadata["genre"], int(metadata["duration_sec"]), song, song_dictionary[song])
+            params = (metadata["title"], metadata["artist"], metadata["genre"], int(metadata["duration_sec"]), song)
             try:
                 curr.execute(sql_query, params)
                 total_songs_loaded += 1
@@ -322,8 +324,7 @@ class db_interface(object):
                 "artist": result[2],
                 "genre": result[3],
                 "duration": result[4],
-                "audio_file_url": result[5],
-                "similar_file_url": result[6]
+                "audio_file_url": result[5]
             }
 
             return [song_data]
@@ -347,8 +348,7 @@ class db_interface(object):
                 "artist": result[2],
                 "genre": result[3],
                 "duration": result[4],
-                "audio_file_url": result[5],
-                "similar_file_url": result[6]
+                "audio_file_url": result[5]
             }
 
             return song_data
@@ -371,8 +371,7 @@ class db_interface(object):
                 "artist": result[2],
                 "genre": result[3],
                 "duration": result[4],
-                "audio_file_url": result[5],
-                "similar_file_url": result[6]
+                "audio_file_url": result[5]
             }
 
             return song_data

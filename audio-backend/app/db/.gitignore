@@ -2,3 +2,5 @@
 __pycache__/
 # Ignore matched songs file
 matched_songs.yaml
+# Ignore generated music vectors
+vggish_vectors.json

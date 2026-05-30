@@ -11,8 +11,8 @@ CREATE TABLE Songs (
     artist VARCHAR(255) NOT NULL,
     genre VARCHAR(100),
     duration_seconds INTEGER NOT NULL,
-    audio_file_url TEXT NOT NULL UNIQUE,
-    similar_song_url TEXT NOT NULL
+    audio_file_url TEXT NOT NULL UNIQUE
+    --similar_song_url TEXT NOT NULL
 );
 
 CREATE INDEX idx_songs_title ON Songs (title);
