@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, Text, FlatList, ScrollView, TouchableOpacity, StyleSheet, Image, Animated } from "react-native";
+import { View, Text, FlatList, ScrollView, TouchableOpacity, Pressable, StyleSheet, Image, Animated, Modal, TextInput, Alert } from "react-native";
 //import { Link } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -15,15 +15,13 @@ const router = useRouter(); // Move over to router from Link
 
 
 export default function Home() {
-    // These are for the feature one
-    const [featured, setFeatured] = useState([
-        { id: "a", name: "Top Hits", cover: playlistCovers[4] },
-        { id: "b", name: " Weekly", cover: playlistCovers[2] },
-        { id: "c", name: "Release", cover: playlistCovers[1] }
-    ]);
+    // Featured playlists will be derived from the user's playlists
+    const [featured, setFeatured] = useState<any[]>([]);
 
     type Playlist = { id: string; name: string; cover: string };
     const [playlists, setPlaylists] = useState<Playlist[]>([]);
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [newPlaylistName, setNewPlaylistName] = useState("");
     // // For playlist
     // useEffect(() => {
     //     const fetchPlaylists = async () => {
@@ -55,25 +53,35 @@ export default function Home() {
             console.error("Error fetching playlists:", error);
         }
     };
-    const handleAddPlaylist = async () => {
-        const newName = `New Playlist ${playlists.length + 1}`;
+    const openCreateModal = () => {
+        setNewPlaylistName("");
+        setShowCreateModal(true);
+    };
 
+    const submitCreatePlaylist = async () => {
+        if (!userId) return;
+        const name = newPlaylistName.trim();
+        if (!name) {
+            Alert.alert("Please enter a playlist name");
+            return;
+        }
         try {
             const response = await fetch(`http://localhost:5000/users/${userId}/playlists`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ playlist_name: "newName" }),
+                body: JSON.stringify({ playlist_name: name }),
             });
 
             if (!response.ok) throw new Error("Failed to add playlist");
 
             const result = await response.json();
             console.log("Playlist created:", result);
-
-            // Re-fetch updated playlists after creation
+            setShowCreateModal(false);
+            setNewPlaylistName("");
             await fetchUserPlaylists();
         } catch (error) {
             console.error("Error adding playlist:", error);
+            Alert.alert("Error", "Could not create playlist");
         }
     };
     useEffect(() => {
@@ -82,41 +90,37 @@ export default function Home() {
         }
     }, [userId]);
     const handleDelete = async (id: string) => {
-        try {
-            const response = await fetch(`http://localhost:5000/playlists/${id}`, {
-                method: "DELETE",
-            });
+        Alert.alert("Delete playlist", "Are you sure you want to delete this playlist?", [
+            { text: "Cancel", style: "cancel" },
+            {
+                text: "Delete",
+                style: "destructive",
+                onPress: async () => {
+                    try {
+                        const response = await fetch(`http://localhost:5000/playlists/${id}`, {
+                            method: "DELETE",
+                        });
 
-            if (!response.ok) throw new Error("Failed to delete playlist");
-
-            // After successful delete, refresh the playlist list
-            await fetchUserPlaylists();
-        } catch (error) {
-            console.error("Error deleting playlist:", error);
-        }
+                        if (!response.ok) throw new Error("Failed to delete playlist");
+                        await fetchUserPlaylists();
+                    } catch (error) {
+                        console.error("Error deleting playlist:", error);
+                        Alert.alert("Error", "Could not delete playlist");
+                    }
+                }
+            }
+        ]);
     };
 
-    // For the feature
+    // Derive featured playlists from user's playlists (random picks)
     useEffect(() => {
-        const fetchMockFeaturedPlaylists = () => {
-            // Simulated backend logic: Randomly select 3 playlists
-            const shuffled = [...playlistCovers]
-                .sort(() => Math.random() - 0.5)
-                .slice(0, 3);
-            const mockData = shuffled.map((cover, index) => ({
-                id: `mock-${index}`,
-                name: `Featured ${index + 1}`,
-                cover,
-            }));
-            setFeatured(mockData); // Update featured playlists
-        };
-        fetchMockFeaturedPlaylists(); // Run once when component mounts
-        // Simulate refresh every 24 hours
-        const interval = setInterval(() => {
-            fetchMockFeaturedPlaylists();
-        }, 3 * 1000);
-        return () => clearInterval(interval); // Cleanup on unmount
-    }, []);
+        if (playlists.length >= 3) {
+            const shuffled = [...playlists].sort(() => Math.random() - 0.5).slice(0, 3);
+            setFeatured(shuffled);
+        } else {
+            setFeatured([]);
+        }
+    }, [playlists]);
 
     // Animation feature
     const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -149,14 +153,18 @@ export default function Home() {
             <Text style={styles.sectionTitle}>Featured</Text>
             {/*This allow us to scroll if there are a lot of playlist*/}
             <Animated.View style={{ opacity: fadeAnim }}>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.featuredScroll}>
-                    {featured.map((item) => (
-                        <View key={item.id} style={styles.featuredCard}>
-                            <Image source={{ uri: item.cover }} style={styles.featuredImg} />
-                            <Text style={styles.featuredText}>{item.name}</Text>
-                        </View>
-                    ))}
-                </ScrollView>
+                {featured.length >= 3 ? (
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.featuredScroll}>
+                        {featured.map((item) => (
+                            <View key={item.id} style={styles.featuredCard}>
+                                <Image source={{ uri: item.cover }} style={styles.featuredImg} />
+                                <Text style={styles.featuredText}>{item.name}</Text>
+                            </View>
+                        ))}
+                    </ScrollView>
+                ) : (
+                    <Text style={styles.empty}>nothing to see here yet</Text>
+                )}
             </Animated.View>
             {/* The user playlist that they can scroll through. Here FlatList use because the user
              can add playlist which would be a lot so Flatlist would render item when they about to
@@ -178,24 +186,48 @@ export default function Home() {
                             <Text style={styles.playlistName}>{item.name}</Text>
                             {/* This is to prevent the delete button to trigger the navigation */}
                         </TouchableOpacity>
-                        <TouchableOpacity
+                        <Pressable
                             style={styles.deleteButton}
-                            onPress={(e) => {
-                                e.stopPropagation(); // Prevent navigation trigger
+                            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                            onPress={() => {
+                                console.log('delete pressed', item.id);
                                 handleDelete(item.id);
                             }}
                         >
                             <Text style={styles.deleteText}>Delete</Text>
-                        </TouchableOpacity>
+                        </Pressable>
                     </View>
                 )}
                 ListEmptyComponent={<Text style={styles.empty}>No playlists yet.</Text>}
             />
 
             {/*To make the new playlist*/}
-            <TouchableOpacity style={styles.addButton} onPress={handleAddPlaylist}>
+            <TouchableOpacity style={styles.addButton} onPress={openCreateModal}>
                 <Text style={styles.addButtonText}>+ Create New Playlist</Text>
             </TouchableOpacity>
+
+            <Modal visible={showCreateModal} animationType="slide" transparent>
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>Create Playlist</Text>
+                        <TextInput
+                            value={newPlaylistName}
+                            onChangeText={setNewPlaylistName}
+                            placeholder="Playlist name"
+                            placeholderTextColor="#999"
+                            style={styles.input}
+                        />
+                        <View style={styles.modalButtons}>
+                            <TouchableOpacity style={styles.modalButton} onPress={() => setShowCreateModal(false)}>
+                                <Text style={styles.modalButtonText}>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={[styles.modalButton, styles.modalPrimary]} onPress={submitCreatePlaylist}>
+                                <Text style={[styles.modalButtonText, { color: "#fff" }]}>Create</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
 
             {/* Searching for music but waiting for the backend */}
             <View style={styles.bottomRow}>
@@ -280,14 +312,14 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     playlistRow: {
+        flex: 1,
         flexDirection: "row",
         alignItems: "center",
         backgroundColor: "#2222ff",
         borderRadius: 10,
         marginBottom: 0,
-        // 12
-        padding: 0,
-        // 10
+        padding: 10,
+        minHeight: 60,
     },
     playlistImg: {
         width: 48,
@@ -300,15 +332,18 @@ const styles = StyleSheet.create({
         fontSize: 17,
         flex: 1,
         fontWeight: "500",
+        flexShrink: 1,
     },
     deleteButton: {
         backgroundColor: "#ff4444",
-        paddingVertical: 6,
-        paddingHorizontal: 12,
+        paddingVertical: 10,
+        paddingHorizontal: 14,
         borderRadius: 6,
-        // marginLeft: 8,
         alignItems: "center",
-        marginLeft: "auto", // Pushes it as far right as possible
+        justifyContent: "center",
+        marginLeft: 12,
+        zIndex: 10,
+        minWidth: 70,
     },
     deleteText: {
         color: "#fff",
@@ -359,10 +394,56 @@ const styles = StyleSheet.create({
     playlistHome: {
         flexDirection: "row",
         alignItems: "center",
+        justifyContent: "space-between",
         backgroundColor: "#2222ff",
         borderRadius: 10,
         marginBottom: 12,
         padding: 10,
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
+    modalContent: {
+        width: '100%',
+        backgroundColor: '#1111ff',
+        borderRadius: 12,
+        padding: 18,
+    },
+    modalTitle: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: '600',
+        marginBottom: 10,
+    },
+    input: {
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        marginBottom: 12,
+        color: '#000',
+    },
+    modalButtons: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+    },
+    modalButton: {
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        marginLeft: 8,
+        borderRadius: 8,
+        backgroundColor: '#ffffff33',
+    },
+    modalPrimary: {
+        backgroundColor: '#00cc44',
+    },
+    modalButtonText: {
+        color: '#fff',
+        fontWeight: '600',
     },
 });
 // Here are some playlist names we making different one to test for now
